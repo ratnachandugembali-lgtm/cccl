@@ -24,7 +24,7 @@ struct policy_selector
   {
     const auto [items, threads] =
       cub::detail::scale_mem_bound(TUNE_THREADS_PER_BLOCK, TUNE_ITEMS_PER_THREAD, int{sizeof(AccumT)});
-    const auto policy = cub::detail::reduce::agent_reduce_policy{
+    const auto policy = cub::ReducePassPolicy{
       threads,
       items,
       1 << TUNE_ITEMS_PER_VEC_LOAD_POW2,

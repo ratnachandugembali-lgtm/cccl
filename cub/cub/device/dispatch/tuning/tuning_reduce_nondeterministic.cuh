@@ -22,7 +22,7 @@ namespace detail::reduce_nondeterministic
 {
 struct reduce_nondeterministic_policy
 {
-  reduce::agent_reduce_policy reduce;
+  ReducePassPolicy reduce;
 
   _CCCL_API constexpr friend bool
   operator==(const reduce_nondeterministic_policy& lhs, const reduce_nondeterministic_policy& rhs)
@@ -59,7 +59,7 @@ struct policy_selector
   [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const
     -> reduce_nondeterministic_policy
   {
-    auto policy            = reduce::policy_selector{accum_t, operation_t, offset_size, accum_size}(cc).reduce;
+    auto policy            = reduce::policy_selector{accum_t, operation_t, offset_size, accum_size}(cc).multi_tile;
     policy.block_algorithm = BLOCK_REDUCE_WARP_REDUCTIONS_NONDETERMINISTIC;
     return {policy};
   }

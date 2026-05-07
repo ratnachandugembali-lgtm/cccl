@@ -24,65 +24,67 @@
 #include <cuda/std/optional>
 
 CUB_NAMESPACE_BEGIN
-namespace detail::reduce
-{
-// TODO(bgruber): bikeshed name before we make the tuning API public
-struct agent_reduce_policy // equivalent of AgentReducePolicy
-{
-  int threads_per_block;
-  int items_per_thread;
-  int vec_size;
-  BlockReduceAlgorithm block_algorithm;
-  CacheLoadModifier load_modifier;
 
-  _CCCL_API constexpr friend bool operator==(const agent_reduce_policy& lhs, const agent_reduce_policy& rhs)
+//! The tuning policy for a single reduction pass
+struct ReducePassPolicy
+{
+  int threads_per_block; //!< Number of threads in a CUDA block
+  int items_per_thread; //!< Number of items processed per thread
+  int vec_size; //!< Number of items per vectorized load
+  BlockReduceAlgorithm block_algorithm; //!< The @ref BlockReduceAlgorithm used for block-wide reduction
+  CacheLoadModifier load_modifier; //!< The @ref CacheLoadModifier used for loading items from global memory
+
+  [[nodiscard]] _CCCL_API constexpr friend bool operator==(const ReducePassPolicy& lhs, const ReducePassPolicy& rhs)
   {
     return lhs.threads_per_block == rhs.threads_per_block && lhs.items_per_thread == rhs.items_per_thread
         && lhs.vec_size == rhs.vec_size && lhs.block_algorithm == rhs.block_algorithm
         && lhs.load_modifier == rhs.load_modifier;
   }
 
-  _CCCL_API constexpr friend bool operator!=(const agent_reduce_policy& lhs, const agent_reduce_policy& rhs)
+  [[nodiscard]] _CCCL_API constexpr friend bool operator!=(const ReducePassPolicy& lhs, const ReducePassPolicy& rhs)
   {
     return !(lhs == rhs);
   }
 
 #if _CCCL_HOSTED()
-  friend ::std::ostream& operator<<(::std::ostream& os, const agent_reduce_policy& p)
+  friend ::std::ostream& operator<<(::std::ostream& os, const ReducePassPolicy& p)
   {
-    return os << "agent_reduce_policy { .threads_per_block = " << p.threads_per_block
+    return os << "ReducePassPolicy { .threads_per_block = " << p.threads_per_block
               << ", .items_per_thread = " << p.items_per_thread << ", .vec_size = " << p.vec_size
               << ", .block_algorithm = " << p.block_algorithm << ", .load_modifier = " << p.load_modifier << " }";
   }
 #endif // _CCCL_HOSTED()
 };
 
-struct reduce_policy
+//! The tuning policy for all algorithms in @ref DeviceReduce.
+struct ReducePolicy
 {
-  agent_reduce_policy reduce;
-  agent_reduce_policy single_tile;
+  ReducePassPolicy multi_tile; //!< Policy for the multi-block reduce pass
+  ReducePassPolicy single_tile; //!< Policy for the single-tile reduce pass
 
-  _CCCL_API constexpr friend bool operator==(const reduce_policy& lhs, const reduce_policy& rhs)
+  [[nodiscard]] _CCCL_API constexpr friend bool operator==(const ReducePolicy& lhs, const ReducePolicy& rhs)
   {
-    return lhs.reduce == rhs.reduce && lhs.single_tile == rhs.single_tile;
+    return lhs.multi_tile == rhs.multi_tile && lhs.single_tile == rhs.single_tile;
   }
 
-  _CCCL_API constexpr friend bool operator!=(const reduce_policy& lhs, const reduce_policy& rhs)
+  [[nodiscard]] _CCCL_API constexpr friend bool operator!=(const ReducePolicy& lhs, const ReducePolicy& rhs)
   {
     return !(lhs == rhs);
   }
 
 #if _CCCL_HOSTED()
-  friend ::std::ostream& operator<<(::std::ostream& os, const reduce_policy& p)
+  friend ::std::ostream& operator<<(::std::ostream& os, const ReducePolicy& p)
   {
-    return os << "reduce_policy { .reduce = " << p.reduce << ", .single_tile = " << p.single_tile << " }";
+    return os << "ReducePolicy { .multi_tile = " << p.multi_tile << ", .single_tile = " << p.single_tile << " }";
   }
 #endif // _CCCL_HOSTED()
 };
 
+namespace detail::reduce
+{
 #if _CCCL_HAS_CONCEPTS()
 template <typename T>
-concept reduce_policy_selector = policy_selector<T, reduce_policy>;
+concept reduce_policy_selector = policy_selector<T, ReducePolicy>;
 #endif // _CCCL_HAS_CONCEPTS()
 
 // TODO(bgruber): remove in CCCL 4.0 when we drop the dispatchers
@@ -343,15 +345,15 @@ struct policy_selector
   int offset_size;
   int accum_size;
 
-  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> reduce_policy
+  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> ReducePolicy
   {
     // if we don't have a tuning for sm100, fall through
     auto sm100_tuning = get_sm100_tuning(accum_t, operation_t, offset_size, accum_size);
     if (cc >= ::cuda::compute_capability{10, 0} && sm100_tuning)
     {
-      agent_reduce_policy rp{};
+      ReducePassPolicy rp{};
       auto [scaled_items, scaled_threads] = scale_mem_bound(sm100_tuning->threads, sm100_tuning->items, accum_size);
-      rp                                  = agent_reduce_policy{
+      rp                                  = ReducePassPolicy{
         scaled_threads, scaled_items, sm100_tuning->items_per_vec_load, BLOCK_REDUCE_WARP_REDUCTIONS, LOAD_LDG};
       return {rp, rp};
     }
@@ -365,7 +367,7 @@ struct policy_selector
       // ReducePolicy (P100: 591 GB/s @ 64M 4B items; 583 GB/s @ 256M 1B items)
       auto [scaled_items, scaled_threads] = scale_mem_bound(threads_per_block, items_per_thread, accum_size);
       const auto rp =
-        agent_reduce_policy{scaled_threads, scaled_items, items_per_vec_load, BLOCK_REDUCE_WARP_REDUCTIONS, LOAD_LDG};
+        ReducePassPolicy{scaled_threads, scaled_items, items_per_vec_load, BLOCK_REDUCE_WARP_REDUCTIONS, LOAD_LDG};
       return {rp, rp};
     }
 
@@ -377,7 +379,7 @@ struct policy_selector
 
     auto [scaled_items, scaled_threads] = scale_mem_bound(threads_per_block, items_per_thread, accum_size);
     const auto rp =
-      agent_reduce_policy{scaled_threads, scaled_items, items_per_vec_load, BLOCK_REDUCE_WARP_REDUCTIONS, LOAD_LDG};
+      ReducePassPolicy{scaled_threads, scaled_items, items_per_vec_load, BLOCK_REDUCE_WARP_REDUCTIONS, LOAD_LDG};
     return {rp, rp};
   }
 };
@@ -389,7 +391,7 @@ static_assert(reduce_policy_selector<policy_selector>);
 template <typename AccumT, typename OffsetT, typename ReductionOpT>
 struct policy_selector_from_types
 {
-  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> reduce_policy
+  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> ReducePolicy
   {
     constexpr auto policies =
       policy_selector{classify_type<AccumT>, classify_op<ReductionOpT>, int{sizeof(OffsetT)}, int{sizeof(AccumT)}};

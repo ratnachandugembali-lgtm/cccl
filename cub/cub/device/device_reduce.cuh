@@ -85,6 +85,24 @@ inline constexpr bool is_non_deterministic_v =
 //!
 //! @linear_performance{reduction, reduce-by-key, and run-length encode}
 //!
+//! Tuning
+//! ====================================
+//!
+//! All non-ByKey algorithms in DeviceReduce that accept an environment can be tuned by passing a custom :ref:`policy
+//! selector <cub-policy-selectors>` that returns a @ref ReducePolicy, as shown in the example below:
+//!
+//!  .. literalinclude:: ../../../cub/test/catch2_test_device_reduce_env_api.cu
+//!      :language: c++
+//!      :dedent:
+//!      :start-after: example-begin reduce-policy-selector
+//!      :end-before: example-end reduce-policy-selector
+//!
+//!  .. literalinclude:: ../../../cub/test/catch2_test_device_reduce_env_api.cu
+//!      :language: c++
+//!      :dedent:
+//!      :start-after: example-begin reduce-tuning
+//!      :end-before: example-end reduce-tuning
+//!
 //! @endrst
 struct DeviceReduce
 {
@@ -145,8 +163,8 @@ private:
       else
       {
         using default_policy_selector = detail::reduce::policy_selector_from_types<accum_t, offset_t, ReductionOpT>;
-        using policy_selector         = ::cuda::std::execution::
-          __query_result_or_t<tuning_env_t, detail::reduce::reduce_policy, default_policy_selector>;
+        using policy_selector =
+          ::cuda::std::execution::__query_result_or_t<tuning_env_t, ReducePolicy, default_policy_selector>;
         return detail::reduce::dispatch<accum_t>(
           storage,
           bytes,

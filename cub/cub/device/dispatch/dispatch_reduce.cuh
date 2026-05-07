@@ -91,20 +91,20 @@ template <typename PolicyHub>
 struct policy_selector_from_hub
 {
   // this is only called in device code, so we can ignore the arch parameter
-  _CCCL_DEVICE_API constexpr auto operator()(::cuda::compute_capability) const -> reduce_policy
+  _CCCL_DEVICE_API constexpr auto operator()(::cuda::compute_capability) const -> ReducePolicy
   {
     using ap             = typename PolicyHub::MaxPolicy::ActivePolicy;
     using ap_reduce      = typename ap::ReducePolicy;
     using ap_single_tile = typename ap::SingleTilePolicy;
-    return reduce_policy{
-      agent_reduce_policy{
+    return ReducePolicy{
+      ReducePassPolicy{
         ap_reduce::BLOCK_THREADS,
         ap_reduce::ITEMS_PER_THREAD,
         ap_reduce::VECTOR_LOAD_LENGTH,
         ap_reduce::BLOCK_ALGORITHM,
         ap_reduce::LOAD_MODIFIER,
       },
-      agent_reduce_policy{
+      ReducePassPolicy{
         ap_single_tile::BLOCK_THREADS,
         ap_single_tile::ITEMS_PER_THREAD,
         ap_single_tile::VECTOR_LOAD_LENGTH,
@@ -590,7 +590,7 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE cudaError_t invoke_passes(
   InitT init,
   cudaStream_t stream,
   TransformOpT transform_op,
-  reduce_policy active_policy,
+  ReducePolicy active_policy,
   KernelSource kernel_source,
   KernelLauncherFactory launcher_factory)
 {
@@ -602,10 +602,10 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE cudaError_t invoke_passes(
   }
 
   // Init regular kernel configuration
-  const auto tile_size = active_policy.reduce.threads_per_block * active_policy.reduce.items_per_thread;
+  const auto tile_size = active_policy.multi_tile.threads_per_block * active_policy.multi_tile.items_per_thread;
   int sm_occupancy;
   if (const auto error = CubDebug(launcher_factory.MaxSmOccupancy(
-        sm_occupancy, kernel_source.ReductionKernel(), active_policy.reduce.threads_per_block)))
+        sm_occupancy, kernel_source.ReductionKernel(), active_policy.multi_tile.threads_per_block)))
   {
     return error;
   }
@@ -648,14 +648,14 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE cudaError_t invoke_passes(
   _CubLog("Invoking DeviceReduceKernel<<<%lu, %d, 0, %lld>>>(), %d items "
           "per thread, %d SM occupancy\n",
           (unsigned long) reduce_grid_size,
-          active_policy.reduce.threads_per_block,
+          active_policy.multi_tile.threads_per_block,
           (long long) stream,
-          active_policy.reduce.items_per_thread,
+          active_policy.multi_tile.items_per_thread,
           sm_occupancy);
 #endif // CUB_DEBUG_LOG
 
   // Invoke DeviceReduceKernel
-  launcher_factory(reduce_grid_size, active_policy.reduce.threads_per_block, 0, stream)
+  launcher_factory(reduce_grid_size, active_policy.multi_tile.threads_per_block, 0, stream)
     .doit(kernel_source.ReductionKernel(), d_in, d_block_reductions, num_items, even_share, reduction_op, transform_op);
 
   // Check for failure to launch
@@ -757,7 +757,7 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE auto dispatch(
     return error;
   }
 
-  const reduce_policy active_policy = policy_selector(cc);
+  const ReducePolicy active_policy = policy_selector(cc);
 #if _CCCL_HOSTED() && defined(CUB_DEBUG_LOG)
   NV_IF_TARGET(NV_IS_HOST, ({
                  std::stringstream ss;

@@ -132,7 +132,7 @@ template <typename PolicySelector,
   requires reduce_policy_selector<PolicySelector>
 #endif // _CCCL_HAS_CONCEPTS()
 _CCCL_KERNEL_ATTRIBUTES
-__launch_bounds__(int(current_policy<PolicySelector>().reduce.threads_per_block)) void DeviceReduceKernel(
+__launch_bounds__(int(current_policy<PolicySelector>().multi_tile.threads_per_block)) void DeviceReduceKernel(
   _CCCL_GRID_CONSTANT const InputIteratorT d_in,
   _CCCL_GRID_CONSTANT AccumT* const d_out,
   _CCCL_GRID_CONSTANT const OffsetT num_items,
@@ -140,7 +140,7 @@ __launch_bounds__(int(current_policy<PolicySelector>().reduce.threads_per_block)
   ReductionOpT reduction_op,
   TransformOpT transform_op)
 {
-  static constexpr agent_reduce_policy policy = current_policy<PolicySelector>().reduce;
+  static constexpr ReducePassPolicy policy = current_policy<PolicySelector>().multi_tile;
   // TODO(bgruber): pass policy directly as template argument to AgentReduce in C++20
   using agent_policy_t =
     AgentReducePolicy<policy.threads_per_block,
@@ -233,7 +233,7 @@ _CCCL_KERNEL_ATTRIBUTES __launch_bounds__(
                                        _CCCL_GRID_CONSTANT const InitT init,
                                        TransformOpT transform_op)
 {
-  static constexpr agent_reduce_policy policy = current_policy<PolicySelector>().single_tile;
+  static constexpr ReducePassPolicy policy = current_policy<PolicySelector>().single_tile;
   // TODO(bgruber): pass policy directly as template argument to AgentReduce in C++20
   using agent_policy_t =
     AgentReducePolicy<policy.threads_per_block,
@@ -320,7 +320,7 @@ _CCCL_KERNEL_ATTRIBUTES __launch_bounds__(int(
   }
 
   // Thread block type for reducing input tiles
-  static constexpr agent_reduce_policy policy = current_policy<PolicySelector>().reduce;
+  static constexpr ReducePassPolicy policy = current_policy<PolicySelector>().reduce;
   // TODO(bgruber): pass policy directly as template argument to AgentReduce in C++20
   using agent_policy_t =
     AgentReducePolicy<policy.threads_per_block,
