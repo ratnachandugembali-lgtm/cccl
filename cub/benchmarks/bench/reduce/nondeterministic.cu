@@ -20,7 +20,7 @@ template <typename AccumT>
 struct policy_selector
 {
   [[nodiscard]] _CCCL_HOST_DEVICE constexpr auto operator()(cuda::compute_capability) const
-    -> cub::detail::reduce_nondeterministic::reduce_nondeterministic_policy
+    -> cub::ReduceNondeterministicPolicy
   {
     const auto [items, threads] =
       cub::detail::scale_mem_bound(TUNE_THREADS_PER_BLOCK, TUNE_ITEMS_PER_THREAD, int{sizeof(AccumT)});

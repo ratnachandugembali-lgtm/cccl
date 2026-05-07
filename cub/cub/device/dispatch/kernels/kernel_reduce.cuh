@@ -289,7 +289,7 @@ template <typename PolicySelector,
 #endif // _CCCL_HAS_CONCEPTS()
 _CCCL_KERNEL_ATTRIBUTES __launch_bounds__(int(
   current_policy<PolicySelector>()
-    .reduce
+    .multi_tile
     .threads_per_block)) void NondeterministicDeviceReduceAtomicKernel(_CCCL_GRID_CONSTANT const InputIteratorT d_in,
                                                                        _CCCL_GRID_CONSTANT const OutputIteratorT d_out,
                                                                        _CCCL_GRID_CONSTANT const OffsetT num_items,
@@ -320,7 +320,7 @@ _CCCL_KERNEL_ATTRIBUTES __launch_bounds__(int(
   }
 
   // Thread block type for reducing input tiles
-  static constexpr ReducePassPolicy policy = current_policy<PolicySelector>().reduce;
+  static constexpr ReducePassPolicy policy = current_policy<PolicySelector>().multi_tile;
   // TODO(bgruber): pass policy directly as template argument to AgentReduce in C++20
   using agent_policy_t =
     AgentReducePolicy<policy.threads_per_block,

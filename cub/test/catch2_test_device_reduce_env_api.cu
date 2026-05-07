@@ -684,4 +684,75 @@ C2H_TEST("cub::DeviceReduce::Sum env-based API with tuning", "[reduce][env]")
   REQUIRE(output == expected);
 }
 
+// example-begin reduce-nondeterministic-policy-selector
+struct MyNondeterministicPolicySelector
+{
+  __host__ __device__ constexpr auto operator()(cuda::compute_capability) const -> cub::ReduceNondeterministicPolicy
+  {
+    return {.multi_tile = cub::ReducePassPolicy{
+              .threads_per_block = 256,
+              .items_per_thread  = 16,
+              .vec_size          = 4,
+              .block_algorithm   = cub::BLOCK_REDUCE_WARP_REDUCTIONS_NONDETERMINISTIC,
+              .load_modifier     = cub::LOAD_LDG}};
+  }
+};
+// example-end reduce-nondeterministic-policy-selector
+
+C2H_TEST("cub::DeviceReduce::Sum env-based API with nondeterministic tuning", "[reduce][env]")
+{
+  // example-begin reduce-nondeterministic-tuning
+  auto input  = thrust::device_vector<float>{1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+  auto output = thrust::device_vector<float>(1);
+
+  auto env = cuda::std::execution::env{cuda::execution::require(cuda::execution::determinism::not_guaranteed),
+                                       cuda::execution::tune(MyNondeterministicPolicySelector{})};
+
+  const auto error = cub::DeviceReduce::Sum(input.begin(), output.begin(), input.size(), env);
+  if (error != cudaSuccess)
+  {
+    std::cerr << "cub::DeviceReduce::Sum failed with status: " << error << '\n';
+  }
+
+  thrust::device_vector<float> expected{15.0f};
+  // example-end reduce-nondeterministic-tuning
+
+  REQUIRE(error == cudaSuccess);
+  REQUIRE(output == expected);
+}
+
+// example-begin reduce-deterministic-policy-selector
+struct MyDeterministicPolicySelector
+{
+  __host__ __device__ constexpr auto operator()(cuda::compute_capability) const -> cub::ReduceDeterministicPolicy
+  {
+    auto pass = cub::ReduceDeterministicPassPolicy{
+      .threads_per_block = 256, .items_per_thread = 16, .block_algorithm = cub::BLOCK_REDUCE_RAKING};
+    return {.multi_tile = pass, .single_tile = pass};
+  }
+};
+// example-end reduce-deterministic-policy-selector
+
+C2H_TEST("cub::DeviceReduce::Sum env-based API with deterministic tuning", "[reduce][env]")
+{
+  // example-begin reduce-deterministic-tuning
+  auto input  = thrust::device_vector<float>{1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+  auto output = thrust::device_vector<float>(1);
+
+  auto env = cuda::std::execution::env{cuda::execution::require(cuda::execution::determinism::gpu_to_gpu),
+                                       cuda::execution::tune(MyDeterministicPolicySelector{})};
+
+  const auto error = cub::DeviceReduce::Sum(input.begin(), output.begin(), input.size(), env);
+  if (error != cudaSuccess)
+  {
+    std::cerr << "cub::DeviceReduce::Sum failed with status: " << error << '\n';
+  }
+
+  thrust::device_vector<float> expected{15.0f};
+  // example-end reduce-deterministic-tuning
+
+  REQUIRE(error == cudaSuccess);
+  REQUIRE(output == expected);
+}
+
 #endif // _CCCL_STD_VER >= 2020

@@ -21,34 +21,70 @@
 
 CUB_NAMESPACE_BEGIN
 
+//! The tuning policy for a single pass of deterministic (gpu-to-gpu) reduction.
+struct ReduceDeterministicPassPolicy
+{
+  int threads_per_block; //!< Number of threads in a CUDA block
+  int items_per_thread; //!< Number of items processed per thread
+  BlockReduceAlgorithm block_algorithm; //!< The @ref BlockReduceAlgorithm used for block-wide reduction
+
+  [[nodiscard]] _CCCL_API constexpr friend bool
+  operator==(const ReduceDeterministicPassPolicy& lhs, const ReduceDeterministicPassPolicy& rhs)
+  {
+    return lhs.threads_per_block == rhs.threads_per_block && lhs.items_per_thread == rhs.items_per_thread
+        && lhs.block_algorithm == rhs.block_algorithm;
+  }
+
+  [[nodiscard]] _CCCL_API constexpr friend bool
+  operator!=(const ReduceDeterministicPassPolicy& lhs, const ReduceDeterministicPassPolicy& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+#if _CCCL_HOSTED()
+  friend ::std::ostream& operator<<(::std::ostream& os, const ReduceDeterministicPassPolicy& p)
+  {
+    return os << "ReduceDeterministicPassPolicy { .threads_per_block = " << p.threads_per_block
+              << ", .items_per_thread = " << p.items_per_thread << ", .block_algorithm = " << p.block_algorithm << " }";
+  }
+#endif // _CCCL_HOSTED()
+};
+
+//! The tuning policy for deterministic (gpu-to-gpu) reduction algorithms in @ref DeviceReduce.
+struct ReduceDeterministicPolicy
+{
+  ReduceDeterministicPassPolicy multi_tile; //!< Policy for the multi-tile reduce pass
+  ReduceDeterministicPassPolicy single_tile; //!< Policy for the single-tile reduce pass
+
+  [[nodiscard]] _CCCL_API constexpr friend bool
+  operator==(const ReduceDeterministicPolicy& lhs, const ReduceDeterministicPolicy& rhs)
+  {
+    return lhs.multi_tile == rhs.multi_tile && lhs.single_tile == rhs.single_tile;
+  }
+
+  [[nodiscard]] _CCCL_API constexpr friend bool
+  operator!=(const ReduceDeterministicPolicy& lhs, const ReduceDeterministicPolicy& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+#if _CCCL_HOSTED()
+  friend ::std::ostream& operator<<(::std::ostream& os, const ReduceDeterministicPolicy& p)
+  {
+    return os
+        << "ReduceDeterministicPolicy { .multi_tile = " << p.multi_tile << ", .single_tile = " << p.single_tile << " }";
+  }
+#endif // _CCCL_HOSTED()
+};
+
 namespace detail::rfa
 {
-struct reduce_policy
-{
-  int threads_per_block;
-  int items_per_thread;
-  BlockReduceAlgorithm block_algorithm;
-};
-
-struct single_tile_policy
-{
-  int threads_per_block;
-  int items_per_thread;
-  BlockReduceAlgorithm block_algorithm;
-};
-
-struct rfa_policy
-{
-  reduce_policy reduce;
-  single_tile_policy single_tile;
-};
-
 struct policy_selector
 {
   type_t accum_t;
   int accum_size;
 
-  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> rfa_policy
+  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> ReduceDeterministicPolicy
   {
     if (cc >= ::cuda::compute_capability{9, 0})
     {
@@ -98,7 +134,7 @@ struct policy_selector
 template <typename AccumT>
 struct policy_selector_from_types
 {
-  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> rfa_policy
+  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> ReduceDeterministicPolicy
   {
     return policy_selector{classify_type<AccumT>, int{sizeof(AccumT)}}(cc);
   }

@@ -48,8 +48,7 @@ struct reduce_tuning
 
 struct unrelated_nondeterminisitc_reduce_tuning
 {
-  _CCCL_API constexpr auto operator()(cuda::compute_capability) const
-    -> cub::detail::reduce_nondeterministic::reduce_nondeterministic_policy
+  _CCCL_API constexpr auto operator()(cuda::compute_capability) const -> cub::ReduceNondeterministicPolicy
   {
     return {}; // just zero everything
   }
@@ -885,6 +884,69 @@ C2H_TEST("ReducePolicy", "[reduce][device]")
       .vec_size          = 4,
       .block_algorithm   = cub::BlockReduceAlgorithm::BLOCK_REDUCE_WARP_REDUCTIONS,
       .load_modifier     = cub::CacheLoadModifier::LOAD_LDG}};
+#  else // _CCCL_STD_VER >= 2020
+  constexpr auto p2 = p1;
+#  endif // _CCCL_STD_VER >= 2020
+
+  // comparison
+  STATIC_REQUIRE(p1 == p2);
+  STATIC_REQUIRE_FALSE(p1 != p2);
+}
+
+C2H_TEST("ReduceNondeterministicPolicy", "[reduce][device]")
+{
+  STATIC_REQUIRE(::cuda::std::semiregular<cub::ReduceNondeterministicPolicy>);
+  STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::ReduceNondeterministicPolicy>);
+
+  // aggregate init
+  constexpr auto p1 = cub::ReduceNondeterministicPolicy{cub::ReducePassPolicy{
+    256,
+    16,
+    4,
+    cub::BlockReduceAlgorithm::BLOCK_REDUCE_WARP_REDUCTIONS_NONDETERMINISTIC,
+    cub::CacheLoadModifier::LOAD_LDG}};
+
+#  if _CCCL_STD_VER >= 2020
+  // designated init
+  constexpr auto p2 = cub::ReduceNondeterministicPolicy{
+    .multi_tile = cub::ReducePassPolicy{
+      .threads_per_block = 256,
+      .items_per_thread  = 16,
+      .vec_size          = 4,
+      .block_algorithm   = cub::BlockReduceAlgorithm::BLOCK_REDUCE_WARP_REDUCTIONS_NONDETERMINISTIC,
+      .load_modifier     = cub::CacheLoadModifier::LOAD_LDG}};
+#  else // _CCCL_STD_VER >= 2020
+  constexpr auto p2 = p1;
+#  endif // _CCCL_STD_VER >= 2020
+
+  // comparison
+  STATIC_REQUIRE(p1 == p2);
+  STATIC_REQUIRE_FALSE(p1 != p2);
+}
+
+C2H_TEST("ReduceDeterministicPolicy", "[reduce][device]")
+{
+  STATIC_REQUIRE(::cuda::std::semiregular<cub::ReduceDeterministicPassPolicy>);
+  STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::ReduceDeterministicPassPolicy>);
+
+  STATIC_REQUIRE(::cuda::std::semiregular<cub::ReduceDeterministicPolicy>);
+  STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::ReduceDeterministicPolicy>);
+
+  // aggregate init
+  constexpr auto p1 = cub::ReduceDeterministicPolicy{
+    cub::ReduceDeterministicPassPolicy{256, 16, cub::BlockReduceAlgorithm::BLOCK_REDUCE_RAKING},
+    cub::ReduceDeterministicPassPolicy{256, 16, cub::BlockReduceAlgorithm::BLOCK_REDUCE_RAKING}};
+
+#  if _CCCL_STD_VER >= 2020
+  // designated init
+  constexpr auto p2 = cub::ReduceDeterministicPolicy{
+    .multi_tile  = cub::ReduceDeterministicPassPolicy{.threads_per_block = 256,
+                                                      .items_per_thread  = 16,
+                                                      .block_algorithm = cub::BlockReduceAlgorithm::BLOCK_REDUCE_RAKING},
+    .single_tile = cub::ReduceDeterministicPassPolicy{
+      .threads_per_block = 256,
+      .items_per_thread  = 16,
+      .block_algorithm   = cub::BlockReduceAlgorithm::BLOCK_REDUCE_RAKING}};
 #  else // _CCCL_STD_VER >= 2020
   constexpr auto p2 = p1;
 #  endif // _CCCL_STD_VER >= 2020

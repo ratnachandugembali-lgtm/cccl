@@ -103,6 +103,36 @@ inline constexpr bool is_non_deterministic_v =
 //!      :start-after: example-begin reduce-tuning
 //!      :end-before: example-end reduce-tuning
 //!
+//! When using ``cuda::execution::determinism::not_guaranteed``, the policy selector must return a
+//! @ref ReduceNondeterministicPolicy instead:
+//!
+//!  .. literalinclude:: ../../../cub/test/catch2_test_device_reduce_env_api.cu
+//!      :language: c++
+//!      :dedent:
+//!      :start-after: example-begin reduce-nondeterministic-policy-selector
+//!      :end-before: example-end reduce-nondeterministic-policy-selector
+//!
+//!  .. literalinclude:: ../../../cub/test/catch2_test_device_reduce_env_api.cu
+//!      :language: c++
+//!      :dedent:
+//!      :start-after: example-begin reduce-nondeterministic-tuning
+//!      :end-before: example-end reduce-nondeterministic-tuning
+//!
+//! When using ``cuda::execution::determinism::gpu_to_gpu``, the policy selector must return a
+//! @ref ReduceDeterministicPolicy instead:
+//!
+//!  .. literalinclude:: ../../../cub/test/catch2_test_device_reduce_env_api.cu
+//!      :language: c++
+//!      :dedent:
+//!      :start-after: example-begin reduce-deterministic-policy-selector
+//!      :end-before: example-end reduce-deterministic-policy-selector
+//!
+//!  .. literalinclude:: ../../../cub/test/catch2_test_device_reduce_env_api.cu
+//!      :language: c++
+//!      :dedent:
+//!      :start-after: example-begin reduce-deterministic-tuning
+//!      :end-before: example-end reduce-deterministic-tuning
+//!
 //! @endrst
 struct DeviceReduce
 {
@@ -136,7 +166,7 @@ private:
       {
         using default_policy_selector = detail::rfa::policy_selector_from_types<accum_t>;
         using policy_selector =
-          ::cuda::std::execution::__query_result_or_t<tuning_env_t, detail::rfa::rfa_policy, default_policy_selector>;
+          ::cuda::std::execution::__query_result_or_t<tuning_env_t, ReduceDeterministicPolicy, default_policy_selector>;
         return detail::rfa::dispatch<InputIteratorT, OutputIteratorT, offset_t, T, TransformOpT, accum_t>(
           storage, bytes, d_in, d_out, static_cast<offset_t>(num_items), init, stream, transform_op, policy_selector{});
       }
@@ -144,10 +174,8 @@ private:
       {
         using default_policy_selector =
           detail::reduce_nondeterministic::policy_selector_from_types<accum_t, offset_t, ReductionOpT>;
-        using policy_selector =
-          ::cuda::std::execution::__query_result_or_t<tuning_env_t,
-                                                      detail::reduce_nondeterministic::reduce_nondeterministic_policy,
-                                                      default_policy_selector>;
+        using policy_selector = ::cuda::std::execution::
+          __query_result_or_t<tuning_env_t, ReduceNondeterministicPolicy, default_policy_selector>;
         return detail::reduce_nondeterministic::dispatch<accum_t>(
           storage,
           bytes,

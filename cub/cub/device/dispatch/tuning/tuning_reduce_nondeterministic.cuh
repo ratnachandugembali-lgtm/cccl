@@ -18,35 +18,37 @@
 #include <cuda/__device/compute_capability.h>
 
 CUB_NAMESPACE_BEGIN
-namespace detail::reduce_nondeterministic
-{
-struct reduce_nondeterministic_policy
-{
-  ReducePassPolicy reduce;
 
-  _CCCL_API constexpr friend bool
-  operator==(const reduce_nondeterministic_policy& lhs, const reduce_nondeterministic_policy& rhs)
+//! The tuning policy for nondeterministic reduction algorithms in @ref DeviceReduce.
+struct ReduceNondeterministicPolicy
+{
+  ReducePassPolicy multi_tile; //!< Policy for the multi-tile reduce pass
+
+  [[nodiscard]] _CCCL_API constexpr friend bool
+  operator==(const ReduceNondeterministicPolicy& lhs, const ReduceNondeterministicPolicy& rhs)
   {
-    return lhs.reduce == rhs.reduce;
+    return lhs.multi_tile == rhs.multi_tile;
   }
 
-  _CCCL_API constexpr friend bool
-  operator!=(const reduce_nondeterministic_policy& lhs, const reduce_nondeterministic_policy& rhs)
+  [[nodiscard]] _CCCL_API constexpr friend bool
+  operator!=(const ReduceNondeterministicPolicy& lhs, const ReduceNondeterministicPolicy& rhs)
   {
     return !(lhs == rhs);
   }
 
 #if _CCCL_HOSTED()
-  friend ::std::ostream& operator<<(::std::ostream& os, const reduce_nondeterministic_policy& p)
+  friend ::std::ostream& operator<<(::std::ostream& os, const ReduceNondeterministicPolicy& p)
   {
-    return os << "reduce_nondeterministic_policy { .reduce = " << p.reduce << " }";
+    return os << "ReduceNondeterministicPolicy { .multi_tile = " << p.multi_tile << " }";
   }
 #endif // _CCCL_HOSTED()
 };
 
+namespace detail::reduce_nondeterministic
+{
 #if _CCCL_HAS_CONCEPTS()
 template <typename T>
-concept reduce_nondeterministic_policy_selector = policy_selector<T, reduce_nondeterministic_policy>;
+concept reduce_nondeterministic_policy_selector = policy_selector<T, ReduceNondeterministicPolicy>;
 #endif // _CCCL_HAS_CONCEPTS()
 
 struct policy_selector
@@ -56,8 +58,7 @@ struct policy_selector
   int offset_size;
   int accum_size;
 
-  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const
-    -> reduce_nondeterministic_policy
+  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> ReduceNondeterministicPolicy
   {
     auto policy            = reduce::policy_selector{accum_t, operation_t, offset_size, accum_size}(cc).multi_tile;
     policy.block_algorithm = BLOCK_REDUCE_WARP_REDUCTIONS_NONDETERMINISTIC;
@@ -73,8 +74,7 @@ static_assert(reduce_nondeterministic_policy_selector<policy_selector>);
 template <typename AccumT, typename OffsetT, typename ReductionOpT>
 struct policy_selector_from_types
 {
-  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const
-    -> reduce_nondeterministic_policy
+  [[nodiscard]] _CCCL_API constexpr auto operator()(::cuda::compute_capability cc) const -> ReduceNondeterministicPolicy
   {
     constexpr auto policies =
       policy_selector{classify_type<AccumT>, classify_op<ReductionOpT>, int{sizeof(OffsetT)}, int{sizeof(AccumT)}};

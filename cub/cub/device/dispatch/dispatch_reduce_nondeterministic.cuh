@@ -180,7 +180,7 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE auto dispatch(
     return error;
   }
 
-  const reduce_nondeterministic_policy active_policy = policy_selector(cc);
+  const ReduceNondeterministicPolicy active_policy = policy_selector(cc);
 #if _CCCL_HOSTED() && defined(CUB_DEBUG_LOG)
   NV_IF_TARGET(NV_IS_HOST, ({
                  std::stringstream ss;
@@ -200,10 +200,10 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE auto dispatch(
   }
 
   // Init kernel configuration
-  const int tile_size = active_policy.reduce.threads_per_block * active_policy.reduce.items_per_thread;
+  const int tile_size = active_policy.multi_tile.threads_per_block * active_policy.multi_tile.items_per_thread;
   int sm_occupancy;
   if (const auto error = CubDebug(launcher_factory.MaxSmOccupancy(
-        sm_occupancy, kernel_source.NondeterministicAtomicKernel(), active_policy.reduce.threads_per_block)))
+        sm_occupancy, kernel_source.NondeterministicAtomicKernel(), active_policy.multi_tile.threads_per_block)))
   {
     return error;
   }
@@ -230,14 +230,14 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE auto dispatch(
   _CubLog("Invoking NondeterministicDeviceReduceAtomicKernel<<<%llu, %d, 0, %p>>>(), %d items "
           "per thread, %d SM occupancy\n",
           (unsigned long long) reduce_grid_size,
-          active_policy.reduce.threads_per_block,
+          active_policy.multi_tile.threads_per_block,
           (void*) stream,
-          active_policy.reduce.items_per_thread,
+          active_policy.multi_tile.items_per_thread,
           sm_occupancy);
 #endif // CUB_DEBUG_LOG
 
   // Invoke NondeterministicDeviceReduceAtomicKernel
-  launcher_factory(reduce_grid_size, active_policy.reduce.threads_per_block, 0, stream)
+  launcher_factory(reduce_grid_size, active_policy.multi_tile.threads_per_block, 0, stream)
     .doit(
       kernel_source.NondeterministicAtomicKernel(), d_in, d_out, num_items, even_share, reduction_op, init, transform_op);
 

@@ -96,7 +96,7 @@ CUB_RUNTIME_FUNCTION _CCCL_VISIBILITY_HIDDEN _CCCL_FORCEINLINE cudaError_t invok
   InitT init,
   cudaStream_t stream,
   TransformOpT transform_op,
-  rfa_policy active_policy,
+  ReduceDeterministicPolicy active_policy,
   KernelLauncherFactory launcher_factory)
 {
   // Return if the caller is simply requesting the size of the storage allocation
@@ -165,7 +165,7 @@ CUB_RUNTIME_FUNCTION _CCCL_VISIBILITY_HIDDEN _CCCL_FORCEINLINE cudaError_t invok
   InitT init,
   cudaStream_t stream,
   TransformOpT transform_op,
-  rfa_policy active_policy,
+  ReduceDeterministicPolicy active_policy,
   KernelLauncherFactory launcher_factory)
 {
   int sm_count;
@@ -178,7 +178,7 @@ CUB_RUNTIME_FUNCTION _CCCL_VISIBILITY_HIDDEN _CCCL_FORCEINLINE cudaError_t invok
   if (const auto error = CubDebug(reduce_config.__init(
         detail::reduce::
           DeterministicDeviceReduceKernel<PolicySelector, InputIteratorT, ReductionOpT, DeterministicAccumT, TransformOpT>,
-        active_policy.reduce)))
+        active_policy.multi_tile)))
   {
     return error;
   }
@@ -237,14 +237,14 @@ CUB_RUNTIME_FUNCTION _CCCL_VISIBILITY_HIDDEN _CCCL_FORCEINLINE cudaError_t invok
     _CubLog("Invoking DeterministicDeviceReduceKernel<<<%d, %d, 0, %lld>>>(), %d items "
             "per thread, %d SM occupancy\n",
             current_grid_size,
-            active_policy.reduce.threads_per_block,
+            active_policy.multi_tile.threads_per_block,
             (long long) stream,
-            active_policy.reduce.items_per_thread,
+            active_policy.multi_tile.items_per_thread,
             reduce_config.sm_occupancy);
 #endif // CUB_DEBUG_LOG
 
     if (const auto error = CubDebug(
-          launcher_factory(current_grid_size, active_policy.reduce.threads_per_block, 0, stream)
+          launcher_factory(current_grid_size, active_policy.multi_tile.threads_per_block, 0, stream)
             .doit(detail::reduce::DeterministicDeviceReduceKernel<PolicySelector,
                                                                   InputIteratorT,
                                                                   ReductionOpT,
@@ -345,7 +345,7 @@ CUB_RUNTIME_FUNCTION _CCCL_FORCEINLINE cudaError_t dispatch(
     return error;
   }
 
-  const rfa_policy active_policy = policy_selector(cc);
+  const ReduceDeterministicPolicy active_policy = policy_selector(cc);
   const auto tile_items =
     static_cast<OffsetT>(active_policy.single_tile.threads_per_block * active_policy.single_tile.items_per_thread);
 
