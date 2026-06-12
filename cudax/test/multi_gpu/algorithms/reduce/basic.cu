@@ -1,0 +1,297 @@
+//===----------------------------------------------------------------------===//
+//
+// Part of CUDA Experimental in CUDA C++ Core Libraries,
+// under the Apache License v2.0 with LLVM Exceptions.
+// See https://llvm.org/LICENSE.txt for license information.
+// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+// SPDX-FileCopyrightText: Copyright (c) 2026 NVIDIA CORPORATION & AFFILIATES.
+//
+//===----------------------------------------------------------------------===//
+
+#include <cuda/devices>
+#include <cuda/functional>
+#include <cuda/std/cstdint>
+#include <cuda/std/execution>
+#include <cuda/std/functional>
+
+#include <cuda/experimental/__multi_gpu/algorithm/reduce/reduce.h>
+
+#include <numeric>
+#include <vector>
+
+#include <testing.cuh>
+
+#include "../../communicators/nccl/nccl_test_helpers.cuh"
+#include <c2h/vector.h>
+
+namespace
+{
+class custom_value : public c2h::custom_type_t<c2h::accumulateable_t, c2h::less_comparable_t, c2h::equal_comparable_t>
+{
+public:
+  custom_value() = default;
+
+  _CCCL_HOST_DEVICE constexpr custom_value(int i) noexcept
+      : custom_type_t{{static_cast<std::size_t>(i), static_cast<std::size_t>(i)}}
+  {}
+};
+static_assert(cudax::nccl_transportable<custom_value>);
+
+// A custom reduction operator equivalent to `cuda::std::plus<>`.
+struct custom_plus
+{
+  template <class T>
+  _CCCL_HOST_DEVICE constexpr T operator()(const T& lhs, const T& rhs) const
+  {
+    return lhs + rhs;
+  }
+};
+
+using value_types = c2h::type_list<cuda::std::int32_t, float, custom_value>;
+using operators   = c2h::type_list<::cuda::std::plus<>, ::cuda::maximum<>, custom_plus>;
+
+// One output iterator per local output buffer. Collected after `out` is fully built so the
+// iterators do not dangle across reallocations.
+template <class OutBuffers>
+[[nodiscard]] auto make_output_iterators(OutBuffers& out)
+{
+  std::vector<typename cuda::std::remove_cvref_t<decltype(out.front())>::iterator> outputs;
+
+  outputs.reserve(out.size());
+  for (auto& buf : out)
+  {
+    outputs.push_back(buf.begin());
+  }
+  return outputs;
+}
+
+// Run the full reduction, wait for it to finish, and check that `reduce` left its argument ranges
+// untouched. This boilerplate is identical for every test regardless of how the inputs are shaped.
+template <class Comms, class Envs, class In, class Outputs, class T, class Op, class Streams>
+void do_reduce(Comms& comms, Envs& envs, In& in, Outputs& outputs, const T& init, Op op, Streams& streams)
+{
+  // cuda::std::execution::env has no operator==, so we can only compare the sizes.
+  const auto envs_size    = envs.size();
+  const auto in_copy      = in;
+  const auto outputs_copy = outputs;
+
+  cudax::reduce(comms, envs, in, outputs, init, op);
+
+  for (auto& stream : streams)
+  {
+    stream.sync();
+  }
+
+  REQUIRE(envs.size() == envs_size);
+  REQUIRE(in == in_copy);
+  REQUIRE(outputs == outputs_copy);
+}
+} // namespace
+
+MGMN_TEST("reduce, one element per rank", value_types, operators)
+{
+  using T  = c2h::get<0, TestType>;
+  using Op = c2h::get<1, TestType>;
+
+  // Seed each reduction with a few hardcoded initializers. The init participates in the fold the
+  // same way on host and device, so any value works for every operator under test.
+  const T init = GENERATE(as<T>{}, 0, 1, -1, 5);
+
+  auto comms   = this->communicators();
+  auto streams = nccl_test_util::make_streams();
+
+  // Global rank `comms[i].rank()` contributes the single value `rank`. Each local rank also gets a
+  // one-element output buffer and an environment carrying its stream, so the reduction is
+  // stream-ordered on the correct device (the memory resource falls back to that device's default
+  // pool). `reference` mirrors the contributions of every global rank so we can fold them on the
+  // host exactly like `reduce` does on the device.
+  std::vector<c2h::device_vector<T>> in;
+  std::vector<c2h::device_vector<T>> out;
+  std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
+  std::vector<T> reference;
+
+  in.reserve(comms.size());
+  out.reserve(comms.size());
+  envs.reserve(comms.size());
+  for (int i = 0; i < comms.size(); ++i)
+  {
+    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
+    in.push_back(static_cast<T>(comms[i].rank()));
+    out.emplace_back(/*size=*/1);
+    envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
+  }
+  for (int r = 0; r < comms.front().size(); ++r)
+  {
+    reference.push_back(static_cast<T>(r));
+  }
+
+  auto outputs = make_output_iterators(out);
+
+  do_reduce(comms, envs, in, outputs, init, Op{}, streams);
+
+  const T expected = std::accumulate(reference.begin(), reference.end(), init, Op{});
+
+  for (const auto& buf : out)
+  {
+    const c2h::host_vector<T> actual = buf;
+
+    REQUIRE(actual.size() == 1);
+    REQUIRE(actual.front() == expected);
+  }
+}
+
+MGMN_TEST("reduce, multiple elements per rank", value_types, operators)
+{
+  using T  = c2h::get<0, TestType>;
+  using Op = c2h::get<1, TestType>;
+
+  // Seed each reduction with a few hardcoded initializers. The init participates in the fold the
+  // same way on host and device, so any value works for every operator under test.
+  const T init = GENERATE(as<T>{}, 0, 1, -1, 5);
+
+  auto comms   = this->communicators();
+  auto streams = nccl_test_util::make_streams();
+
+  // Global rank `comms[i].rank()` contributes `{rank, rank, rank}`. `reduce` first does a local CUB
+  // reduction of each rank's range, then combines the partials across ranks. Each local rank also
+  // gets a one-element output buffer and an environment carrying its stream. `reference` mirrors
+  // every global rank's three contributions for the host-side fold.
+  std::vector<c2h::device_vector<T>> in;
+  std::vector<c2h::device_vector<T>> out;
+  std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
+  std::vector<T> reference;
+
+  in.reserve(comms.size());
+  out.reserve(comms.size());
+  envs.reserve(comms.size());
+  for (int i = 0; i < comms.size(); ++i)
+  {
+    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
+    const auto v = static_cast<T>(comms[i].rank());
+    in.push_back({v, v, v});
+    out.emplace_back(/*size=*/1);
+    envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
+  }
+  for (int r = 0; r < comms.front().size(); ++r)
+  {
+    const auto v = static_cast<T>(r);
+    reference.insert(reference.end(), {v, v, v});
+  }
+
+  auto outputs = make_output_iterators(out);
+
+  do_reduce(comms, envs, in, outputs, init, Op{}, streams);
+
+  const T expected = std::accumulate(reference.begin(), reference.end(), init, Op{});
+
+  for (const auto& buf : out)
+  {
+    const c2h::host_vector<T> actual = buf;
+
+    REQUIRE(actual.size() == 1);
+    REQUIRE(actual.front() == expected);
+  }
+}
+
+MGMN_TEST("reduce, some ranks empty", value_types, operators)
+{
+  using T  = c2h::get<0, TestType>;
+  using Op = c2h::get<1, TestType>;
+
+  const T init = GENERATE(as<T>{}, 0, 1, -1, 5);
+
+  auto comms   = this->communicators();
+  auto streams = nccl_test_util::make_streams();
+
+  // Even global ranks contribute two copies of `rank`; odd global ranks contribute an empty input
+  // range. Rank 0 (the reduction root) is always non-empty. `reduce` must treat an empty rank as
+  // contributing nothing, exactly like `std::accumulate` over the surviving elements. `reference`
+  // mirrors that for the host-side fold.
+  std::vector<c2h::device_vector<T>> in;
+  std::vector<c2h::device_vector<T>> out;
+  std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
+  std::vector<T> reference;
+
+  in.reserve(comms.size());
+  out.reserve(comms.size());
+  envs.reserve(comms.size());
+  for (int i = 0; i < comms.size(); ++i)
+  {
+    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
+    const auto rank = comms[i].rank();
+    if (rank % 2 == 0)
+    {
+      in.push_back({static_cast<T>(rank), static_cast<T>(rank)});
+    }
+    else
+    {
+      in.emplace_back(/*count=*/0);
+    }
+    out.emplace_back(/*size=*/1);
+    envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
+  }
+
+  for (int r = 0; r < comms.front().size(); r += 2)
+  {
+    reference.push_back(static_cast<T>(r));
+    reference.push_back(static_cast<T>(r));
+  }
+
+  auto outputs = make_output_iterators(out);
+
+  do_reduce(comms, envs, in, outputs, init, Op{}, streams);
+
+  const T expected = std::accumulate(reference.begin(), reference.end(), init, Op{});
+
+  for (const auto& buf : out)
+  {
+    const c2h::host_vector<T> actual = buf;
+
+    REQUIRE(actual.size() == 1);
+    REQUIRE(actual.front() == expected);
+  }
+}
+
+MGMN_TEST("reduce, all ranks empty", value_types, operators)
+{
+  using T  = c2h::get<0, TestType>;
+  using Op = c2h::get<1, TestType>;
+
+  const T init = GENERATE(as<T>{}, 0, 1, -1, 5);
+
+  auto comms   = this->communicators();
+  auto streams = nccl_test_util::make_streams();
+
+  // No rank contributes any element. Reducing nothing seeded by `init` is just `init`, so every
+  // output must equal `init` regardless of the operator.
+  std::vector<c2h::device_vector<T>> in;
+  std::vector<c2h::device_vector<T>> out;
+  std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
+
+  in.reserve(comms.size());
+  out.reserve(comms.size());
+  envs.reserve(comms.size());
+  for (int i = 0; i < comms.size(); ++i)
+  {
+    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
+    in.emplace_back(/*count=*/0);
+    out.emplace_back(/*size=*/1);
+    envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
+  }
+
+  auto outputs = make_output_iterators(out);
+
+  do_reduce(comms, envs, in, outputs, init, Op{}, streams);
+
+  // Reducing nothing seeded by `init` yields `init`, exactly like `std::accumulate` over an empty
+  // range.
+  const T expected = init;
+
+  for (const auto& buf : out)
+  {
+    const c2h::host_vector<T> actual = buf;
+
+    REQUIRE(actual.size() == 1);
+    REQUIRE(actual.front() == expected);
+  }
+}
