@@ -276,7 +276,7 @@ __tuple_select_tuple_like_constructible(__tuple_types<_Types...>, __tuple_indice
 {
   using ::cuda::std::get;
   if constexpr (__is_cuda_std_ranges_subrange_v<remove_cvref_t<_UTuple>>)
-  { // [tuple#cnstr]-29.2: remove_cvref_t<UTuple> is not a specialization of ranges​::​subrange,
+  { // [tuple#cnstr]-29.2: remove_cvref_t<UTuple> is not a specialization of ranges::subrange,
     return __select_constructor::__none;
   }
   else if constexpr (is_same_v<_UTuple, const tuple<_Types...>&> || is_same_v<_UTuple, tuple<_Types...>&&>)
@@ -294,9 +294,9 @@ __tuple_select_tuple_like_constructible(__tuple_types<_Types...>, __tuple_indice
     return __select_constructor::__none;
   }
   else if constexpr (!(is_constructible_v<_Types, decltype(get<_Indices>(::cuda::std::declval<_UTuple>()))> && ...))
-  { // [tuple.cnstr]-21.2: is_constructible<Types, decltype(get<I>(std​::​forward<UTuple>(u)))>... is true
-    // [tuple.cnstr]-25.2: is_constructible<Types, decltype(get<I>(std​::​forward<UTuple>(u)))>... is true
-    // [tuple.cnstr]-29.4: is_constructible<Types, decltype(get<I>(std​::​forward<UTuple>(u)))>... is true
+  { // [tuple.cnstr]-21.2: is_constructible<Types, decltype(get<I>(std::forward<UTuple>(u)))>... is true
+    // [tuple.cnstr]-25.2: is_constructible<Types, decltype(get<I>(std::forward<UTuple>(u)))>... is true
+    // [tuple.cnstr]-29.4: is_constructible<Types, decltype(get<I>(std::forward<UTuple>(u)))>... is true
     return __select_constructor::__none;
   }
   else
@@ -316,7 +316,7 @@ __tuple_select_tuple_like_constructible(__tuple_types<_Type>, __tuple_indices<_I
 {
   using ::cuda::std::get;
   if constexpr (__is_cuda_std_ranges_subrange_v<remove_cvref_t<_UTuple>>)
-  { // [tuple#cnstr]-29.2: remove_cvref_t<UTuple> is not a specialization of ranges​::​subrange,
+  { // [tuple#cnstr]-29.2: remove_cvref_t<UTuple> is not a specialization of ranges::subrange,
     return __select_constructor::__none;
   }
   else if constexpr (is_same_v<_UTuple, const tuple<_Type>&> || is_same_v<_UTuple, tuple<_Type>&&>)
@@ -345,9 +345,9 @@ __tuple_select_tuple_like_constructible(__tuple_types<_Type>, __tuple_indices<_I
     return __select_constructor::__none;
   }
   else if constexpr (!is_constructible_v<_Type, decltype(get<_Index>(::cuda::std::declval<_UTuple>()))>)
-  { // [tuple.cnstr]-21.2: is_constructible<Types, decltype(get<I>(std​::​forward<UTuple>(u)))>... is true
-    // [tuple.cnstr]-25.2: is_constructible<Types, decltype(get<I>(std​::​forward<UTuple>(u)))>... is true
-    // [tuple.cnstr]-29.4: is_constructible<Types, decltype(get<I>(std​::​forward<UTuple>(u)))>... is true
+  { // [tuple.cnstr]-21.2: is_constructible<Types, decltype(get<I>(std::forward<UTuple>(u)))>... is true
+    // [tuple.cnstr]-25.2: is_constructible<Types, decltype(get<I>(std::forward<UTuple>(u)))>... is true
+    // [tuple.cnstr]-29.4: is_constructible<Types, decltype(get<I>(std::forward<UTuple>(u)))>... is true
     return __select_constructor::__none;
   }
   else
@@ -538,7 +538,7 @@ __tuple_select_tuple_like_assignable(__tuple_types<_Types...>, __tuple_indices<_
     return __select_assignment::__none;
   }
   else if constexpr (__is_cuda_std_ranges_subrange_v<remove_cvref_t<_UTuple>>)
-  { // [tuple.assign]-39.2: remove_cvref_t<UTuple> is not a specialization of ranges​::​subrange,
+  { // [tuple.assign]-39.2: remove_cvref_t<UTuple> is not a specialization of ranges::subrange,
     return __select_assignment::__none;
   }
   else if constexpr (!__tuple_like_with_size<_UTuple, sizeof...(_Types)>)
@@ -548,7 +548,7 @@ __tuple_select_tuple_like_assignable(__tuple_types<_Types...>, __tuple_indices<_
   else if constexpr (_IsConst)
   {
     if constexpr ((is_assignable_v<const _Types&, decltype(get<_Indices>(::cuda::std::declval<_UTuple>()))> && ...))
-    { // [tuple.assign]-42.4: is_assignable_v<const T_i&, decltype(get<i>(std​::​forward<UTuple>(u)))> is true for
+    { // [tuple.assign]-42.4: is_assignable_v<const T_i&, decltype(get<i>(std::forward<UTuple>(u)))> is true for
       // all i
       return (is_nothrow_assignable_v<const _Types&, decltype(get<_Indices>(::cuda::std::declval<_UTuple>()))> && ...)
              ? __select_assignment::__is_nothrow
@@ -560,7 +560,7 @@ __tuple_select_tuple_like_assignable(__tuple_types<_Types...>, __tuple_indices<_
     }
   }
   else if constexpr ((is_assignable_v<_Types&, decltype(get<_Indices>(::cuda::std::declval<_UTuple>()))> && ...))
-  { // [tuple.assign]-39.4: is_assignable_v<T_i&, decltype(get<i>(std​::​forward<UTuple>(u)))> is true for all i
+  { // [tuple.assign]-39.4: is_assignable_v<T_i&, decltype(get<i>(std::forward<UTuple>(u)))> is true for all i
     return (is_nothrow_assignable_v<_Types&, decltype(get<_Indices>(::cuda::std::declval<_UTuple>()))> && ...)
            ? __select_assignment::__is_nothrow
            : __select_assignment::__may_throw;

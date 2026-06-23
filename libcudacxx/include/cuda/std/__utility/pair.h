@@ -76,7 +76,7 @@ template <class _UPair, class _T1, class _T2>
 {
   using ::cuda::std::get;
   if constexpr (__is_cuda_std_ranges_subrange_v<remove_cvref_t<_UPair>>)
-  { // [pairs#pair]-15.1: remove_cvref_t<UTuple> is not a specialization of ranges​::​subrange,
+  { // [pairs#pair]-15.1: remove_cvref_t<UTuple> is not a specialization of ranges::subrange,
     return __select_constructor::__none;
   }
   else if constexpr (!__pair_like<_UPair>)
@@ -84,11 +84,11 @@ template <class _UPair, class _T1, class _T2>
     return __select_constructor::__none;
   }
   else if constexpr (!is_constructible_v<_T1, decltype(get<0>(::cuda::std::declval<_UPair>()))>)
-  { // [pairs#pair]-15.2: is_constructible<T1, decltype(get<0>(std​::​forward<UTuple>(u)))>... is true
+  { // [pairs#pair]-15.2: is_constructible<T1, decltype(get<0>(std::forward<UTuple>(u)))>... is true
     return __select_constructor::__none;
   }
   else if constexpr (!is_constructible_v<_T2, decltype(get<1>(::cuda::std::declval<_UPair>()))>)
-  { // [pairs#pair]-15.3: is_constructible<T2, decltype(get<1>(std​::​forward<UTuple>(u)))>... is true
+  { // [pairs#pair]-15.3: is_constructible<T2, decltype(get<1>(std::forward<UTuple>(u)))>... is true
     return __select_constructor::__none;
   }
   else if constexpr (is_convertible_v<decltype(get<0>(::cuda::std::declval<_UPair>())), _T1>
