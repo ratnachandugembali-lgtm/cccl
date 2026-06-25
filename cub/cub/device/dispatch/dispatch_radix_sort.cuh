@@ -1096,14 +1096,15 @@ public:
       }
     }
 
-// Force kernel code-generation in all compiler passes
-#ifdef CUB_DEFINE_RUNTIME_POLICIES
+    // Older GCCs choke on using policy in a constexpr expression even if it is constexpr itself
+#if defined(CUB_DEFINE_RUNTIME_POLICIES) || _CCCL_COMPILER(GCC, <, 10)
     const auto tile_items =
       static_cast<OffsetT>(policy.single_tile.threads_per_block * policy.single_tile.items_per_thread);
-#else
+#else // ^^^ runtime tile items ^^^ / vvv constexpr tile items vvv
     constexpr auto tile_items = OffsetT{policy.single_tile.threads_per_block * policy.single_tile.items_per_thread};
-#endif
+#endif // ^^^ true constexpr tile_items ^^^
 
+    // Force kernel code-generation in all compiler passes
     if (num_items <= tile_items)
     {
       // Small, single tile size
