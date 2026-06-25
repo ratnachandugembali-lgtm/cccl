@@ -1096,17 +1096,13 @@ public:
       }
     }
 
-    // Force kernel code-generation in all compiler passes
-    CUB_DETAIL_CONSTEXPR_ISH auto tile_items = [&] {
-      CUB_DETAIL_CONSTEXPR_ISH auto tile_items =
-        policy.single_tile.threads_per_block * policy.single_tile.items_per_thread;
-
+// Force kernel code-generation in all compiler passes
 #ifdef CUB_DEFINE_RUNTIME_POLICIES
-      return static_cast<OffsetT>(tile_items);
+    const auto tile_items =
+      static_cast<OffsetT>(policy.single_tile.threads_per_block * policy.single_tile.items_per_thread);
 #else
-      return OffsetT{tile_items};
+    constexpr auto tile_items = OffsetT{policy.single_tile.threads_per_block * policy.single_tile.items_per_thread};
 #endif
-    }();
 
     if (num_items <= tile_items)
     {
