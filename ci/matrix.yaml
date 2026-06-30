@@ -22,8 +22,6 @@ workflows:
   #
   # IMPORTANT: Do NOT delete or remove the `override:` key below, even when it is empty.
   override:
-    - { jobs: ['run_gpu'], project: 'target', std: 20, ctk: '13.X', cxx: 'gcc', gpu: 'h100_2gpu', sm: 'gpu',
-        args: '--preset cudax-cpp20 --build-targets "cudax.test.stf.green_context.gc_grid cudax.test.stf.green_context.gc_grid_managed" --custom-test-cmd "CUDA_LAUNCH_BLOCKING=1 CUDA_LOG_FILE=stderr ctest --test-dir \"\${BUILD_DIR}\" -R \"cudax.test.stf.green_context.gc_grid\" -V --output-on-failure"' }
 
   pull_request:
     # Old CTK: Oldest/newest supported host compilers:
