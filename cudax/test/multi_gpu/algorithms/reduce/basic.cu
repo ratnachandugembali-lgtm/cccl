@@ -290,8 +290,9 @@ MGMN_TEST("reduce, all ranks empty", value_types, operators)
   envs.reserve(comms.size());
   for (int i = 0; i < comms.size(); ++i)
   {
-    in.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device()));
-    out.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), 1, cuda::no_init));
+    in.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].logical_device().underlying_device()));
+    out.emplace_back(
+      cuda::make_device_buffer<T>(streams[i], comms[i].logical_device().underlying_device(), 1, cuda::no_init));
     envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
   }
 
