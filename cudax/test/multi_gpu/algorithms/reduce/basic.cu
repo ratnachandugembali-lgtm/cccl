@@ -8,11 +8,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <cuda/devices>
+#include <cuda/buffer>
 #include <cuda/functional>
+#include <cuda/memory_resource>
 #include <cuda/std/cstdint>
 #include <cuda/std/execution>
 #include <cuda/std/functional>
+#include <cuda/std/type_traits>
 
 #include <cuda/experimental/__multi_gpu/algorithm/reduce/reduce.h>
 
@@ -22,7 +24,6 @@
 #include <testing.cuh>
 
 #include "../../communicators/nccl/nccl_test_helpers.cuh"
-#include <c2h/vector.h>
 
 namespace
 {
@@ -70,9 +71,19 @@ template <class OutBuffers>
 template <class Comms, class Envs, class In, class Outputs, class T, class Op, class Streams>
 void do_reduce(Comms& comms, Envs& envs, In& in, Outputs& outputs, const T& init, Op op, Streams& streams)
 {
+  using value_type = typename cuda::std::remove_cvref_t<decltype(in.front())>::value_type;
+
   // cuda::std::execution::env has no operator==, so we can only compare the sizes.
-  const auto envs_size    = envs.size();
-  const auto in_copy      = in;
+  const auto envs_size = envs.size();
+
+  auto pool = cuda::mr::legacy_pinned_memory_resource{};
+  std::vector<cuda::host_buffer<value_type>> in_copy;
+  in_copy.reserve(in.size());
+  for (const auto& buf : in)
+  {
+    in_copy.emplace_back(cuda::make_buffer(buf.stream(), pool, buf));
+  }
+
   const auto outputs_copy = outputs;
 
   cudax::reduce(comms, envs, in, outputs, init, op);
@@ -83,7 +94,11 @@ void do_reduce(Comms& comms, Envs& envs, In& in, Outputs& outputs, const T& init
   }
 
   REQUIRE(envs.size() == envs_size);
-  REQUIRE(in == in_copy);
+  for (cuda::std::size_t i = 0; i < in.size(); ++i)
+  {
+    const auto actual = cuda::make_buffer(in[i].stream(), pool, in[i]);
+    REQUIRE_THAT(actual, Equals(in_copy[i]));
+  }
   REQUIRE(outputs == outputs_copy);
 }
 } // namespace
@@ -102,11 +117,10 @@ MGMN_TEST("reduce, one element per rank", value_types, operators)
 
   // Global rank `comms[i].rank()` contributes the single value `rank`. Each local rank also gets a
   // one-element output buffer and an environment carrying its stream, so the reduction is
-  // stream-ordered on the correct device (the memory resource falls back to that device's default
-  // pool). `reference` mirrors the contributions of every global rank so we can fold them on the
-  // host exactly like `reduce` does on the device.
-  std::vector<c2h::device_vector<T>> in;
-  std::vector<c2h::device_vector<T>> out;
+  // stream-ordered on the correct device. `reference` mirrors the contributions of every global
+  // rank so we can fold them on the host exactly like `reduce` does on the device.
+  std::vector<cuda::device_buffer<T>> in;
+  std::vector<cuda::device_buffer<T>> out;
   std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
   std::vector<T> reference;
 
@@ -115,9 +129,9 @@ MGMN_TEST("reduce, one element per rank", value_types, operators)
   envs.reserve(comms.size());
   for (int i = 0; i < comms.size(); ++i)
   {
-    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
-    in.push_back(static_cast<T>(comms[i].rank()));
-    out.emplace_back(/*size=*/1);
+    const auto values = {static_cast<T>(comms[i].rank())};
+    in.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), values));
+    out.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), 1, cuda::no_init));
     envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
   }
   for (int r = 0; r < comms.front().size(); ++r)
@@ -133,7 +147,8 @@ MGMN_TEST("reduce, one element per rank", value_types, operators)
 
   for (const auto& buf : out)
   {
-    const c2h::host_vector<T> actual = buf;
+    auto pool         = cuda::mr::legacy_pinned_memory_resource{};
+    const auto actual = cuda::make_buffer(buf.stream(), pool, buf);
 
     REQUIRE(actual.size() == 1);
     REQUIRE(actual.front() == expected);
@@ -156,8 +171,8 @@ MGMN_TEST("reduce, multiple elements per rank", value_types, operators)
   // reduction of each rank's range, then combines the partials across ranks. Each local rank also
   // gets a one-element output buffer and an environment carrying its stream. `reference` mirrors
   // every global rank's three contributions for the host-side fold.
-  std::vector<c2h::device_vector<T>> in;
-  std::vector<c2h::device_vector<T>> out;
+  std::vector<cuda::device_buffer<T>> in;
+  std::vector<cuda::device_buffer<T>> out;
   std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
   std::vector<T> reference;
 
@@ -166,10 +181,10 @@ MGMN_TEST("reduce, multiple elements per rank", value_types, operators)
   envs.reserve(comms.size());
   for (int i = 0; i < comms.size(); ++i)
   {
-    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
-    const auto v = static_cast<T>(comms[i].rank());
-    in.push_back({v, v, v});
-    out.emplace_back(/*size=*/1);
+    const auto v      = static_cast<T>(comms[i].rank());
+    const auto values = {v, v, v};
+    in.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), values));
+    out.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), 1, cuda::no_init));
     envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
   }
   for (int r = 0; r < comms.front().size(); ++r)
@@ -186,7 +201,8 @@ MGMN_TEST("reduce, multiple elements per rank", value_types, operators)
 
   for (const auto& buf : out)
   {
-    const c2h::host_vector<T> actual = buf;
+    auto pool         = cuda::mr::legacy_pinned_memory_resource{};
+    const auto actual = cuda::make_buffer(buf.stream(), pool, buf);
 
     REQUIRE(actual.size() == 1);
     REQUIRE(actual.front() == expected);
@@ -207,8 +223,8 @@ MGMN_TEST("reduce, some ranks empty", value_types, operators)
   // range. Rank 0 (the reduction root) is always non-empty. `reduce` must treat an empty rank as
   // contributing nothing, exactly like `std::accumulate` over the surviving elements. `reference`
   // mirrors that for the host-side fold.
-  std::vector<c2h::device_vector<T>> in;
-  std::vector<c2h::device_vector<T>> out;
+  std::vector<cuda::device_buffer<T>> in;
+  std::vector<cuda::device_buffer<T>> out;
   std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
   std::vector<T> reference;
 
@@ -217,17 +233,17 @@ MGMN_TEST("reduce, some ranks empty", value_types, operators)
   envs.reserve(comms.size());
   for (int i = 0; i < comms.size(); ++i)
   {
-    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
     const auto rank = comms[i].rank();
     if (rank % 2 == 0)
     {
-      in.push_back({static_cast<T>(rank), static_cast<T>(rank)});
+      const auto values = {static_cast<T>(rank), static_cast<T>(rank)};
+      in.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), values));
     }
     else
     {
-      in.emplace_back(/*count=*/0);
+      in.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device()));
     }
-    out.emplace_back(/*size=*/1);
+    out.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), 1, cuda::no_init));
     envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
   }
 
@@ -245,7 +261,8 @@ MGMN_TEST("reduce, some ranks empty", value_types, operators)
 
   for (const auto& buf : out)
   {
-    const c2h::host_vector<T> actual = buf;
+    auto pool         = cuda::mr::legacy_pinned_memory_resource{};
+    const auto actual = cuda::make_buffer(buf.stream(), pool, buf);
 
     REQUIRE(actual.size() == 1);
     REQUIRE(actual.front() == expected);
@@ -264,8 +281,8 @@ MGMN_TEST("reduce, all ranks empty", value_types, operators)
 
   // No rank contributes any element. Reducing nothing seeded by `init` is just `init`, so every
   // output must equal `init` regardless of the operator.
-  std::vector<c2h::device_vector<T>> in;
-  std::vector<c2h::device_vector<T>> out;
+  std::vector<cuda::device_buffer<T>> in;
+  std::vector<cuda::device_buffer<T>> out;
   std::vector<decltype(::cuda::std::execution::env{::cuda::stream_ref{streams[0]}})> envs;
 
   in.reserve(comms.size());
@@ -273,9 +290,8 @@ MGMN_TEST("reduce, all ranks empty", value_types, operators)
   envs.reserve(comms.size());
   for (int i = 0; i < comms.size(); ++i)
   {
-    REQUIRE_CUDART(cudaSetDevice(comms[i].device().underlying_device().get()));
-    in.emplace_back(/*count=*/0);
-    out.emplace_back(/*size=*/1);
+    in.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device()));
+    out.emplace_back(cuda::make_device_buffer<T>(streams[i], comms[i].device(), 1, cuda::no_init));
     envs.emplace_back(::cuda::std::execution::env{::cuda::stream_ref{streams[i]}});
   }
 
@@ -289,7 +305,8 @@ MGMN_TEST("reduce, all ranks empty", value_types, operators)
 
   for (const auto& buf : out)
   {
-    const c2h::host_vector<T> actual = buf;
+    auto pool         = cuda::mr::legacy_pinned_memory_resource{};
+    const auto actual = cuda::make_buffer(buf.stream(), pool, buf);
 
     REQUIRE(actual.size() == 1);
     REQUIRE(actual.front() == expected);
