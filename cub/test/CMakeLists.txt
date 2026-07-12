@@ -204,6 +204,7 @@ function(
           ${test_target}
           TEST_SPEC "[large-mem]"
           TEST_PREFIX "${test_target}."
+          EXTRA_ARGS "--allow-running-no-tests"
           DISCOVERY_MODE PRE_TEST
           PROPERTIES
             ${cub_test_common_properties}
