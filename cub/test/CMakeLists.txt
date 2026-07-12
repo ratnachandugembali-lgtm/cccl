@@ -15,6 +15,21 @@ cccl_get_c2h()
 cccl_get_cudatoolkit()
 cccl_get_nvtx()
 
+option(
+  CCCL_CUB_PARALLEL_SMALL_TESTS
+  "Run small CUB Catch2 test cases in parallel under ctest -j; large-memory tests stay serial"
+  OFF
+)
+
+if (CCCL_CUB_PARALLEL_SMALL_TESTS)
+  cccl_get_catch2()
+  if (DEFINED Catch2_SOURCE_DIR AND EXISTS "${Catch2_SOURCE_DIR}/extras/Catch.cmake")
+    include("${Catch2_SOURCE_DIR}/extras/Catch.cmake")
+  else()
+    include(Catch)
+  endif()
+endif()
+
 set(build_nvrtc_tests ON)
 if ("NVHPC" STREQUAL "${CMAKE_CXX_COMPILER_ID}")
   set(build_nvrtc_tests OFF)
@@ -141,21 +156,65 @@ function(
     )
     target_include_directories(${test_target} PUBLIC "${CUB_SOURCE_DIR}/test")
 
-    add_test(
-      NAME ${test_target}
-      # gersemi: off
-      COMMAND
-        "${CMAKE_COMMAND}"
-           "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
-           "-DTEST=$<TARGET_FILE:${test_target}>"
-           "-DTYPE=Catch2"
-           -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
-      # gersemi: on
-    )
-    set_tests_properties(
-      ${test_target}
-      PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
-    )
+    if (CCCL_CUB_PARALLEL_SMALL_TESTS)
+      # Catch2's discovery helper uses CROSSCOMPILING_EMULATOR as the test
+      # executor. Route discovered cases through CUB's wrapper so sanitizer mode
+      # and skip handling stay consistent with the existing test path.
+      set_property(
+        TARGET ${test_target}
+        PROPERTY CROSSCOMPILING_EMULATOR
+          "${CMAKE_COMMAND};-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR};-DTYPE=Catch2;-P;${CUB_SOURCE_DIR}/test/run_test.cmake"
+      )
+
+      file(READ "${CUB_SOURCE_DIR}/test/${test_src}" _cub_test_src_text)
+      set(cub_test_common_properties
+        SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+        ENVIRONMENT SCCACHE_NO_CACHE=1
+      )
+
+      if (_cub_test_src_text MATCHES "\\[large-mem\\]")
+        catch_discover_tests(
+          ${test_target}
+          TEST_SPEC "~[large-mem]"
+          TEST_PREFIX "${test_target}."
+          DISCOVERY_MODE PRE_TEST
+          PROPERTIES ${cub_test_common_properties}
+        )
+        catch_discover_tests(
+          ${test_target}
+          TEST_SPEC "[large-mem]"
+          TEST_PREFIX "${test_target}."
+          DISCOVERY_MODE PRE_TEST
+          PROPERTIES
+            ${cub_test_common_properties}
+            RUN_SERIAL TRUE
+            LABELS "large-mem"
+        )
+      else()
+        catch_discover_tests(
+          ${test_target}
+          TEST_PREFIX "${test_target}."
+          DISCOVERY_MODE PRE_TEST
+          PROPERTIES ${cub_test_common_properties}
+        )
+      endif()
+    else()
+      add_test(
+        NAME ${test_target}
+        # gersemi: off
+        COMMAND
+          "${CMAKE_COMMAND}"
+             "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+             "-DTEST=$<TARGET_FILE:${test_target}>"
+             "-DTYPE=Catch2"
+             -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+        # gersemi: on
+      )
+      set_tests_properties(
+        ${test_target}
+        PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+      )
+    endif()
 
     if ("${test_target}" MATCHES "nvrtc")
       configure_file(
@@ -285,11 +344,21 @@ function(
         ${test_target}
         PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
       )
+      file(READ "${CUB_SOURCE_DIR}/test/${test_src}" _cub_test_src_text)
+      if (_cub_test_src_text MATCHES "\\[large-mem\\]")
+        set_tests_properties(${test_target} PROPERTIES RUN_SERIAL TRUE LABELS "large-mem")
+      endif()
     endif()
   endif() # Not catch2 test
 
   # Disable build caching for compile tests
-  set_tests_properties(${test_target} PROPERTIES ENVIRONMENT SCCACHE_NO_CACHE=1)
+  if (NOT (is_catch2_test AND CCCL_CUB_PARALLEL_SMALL_TESTS))
+    set_tests_properties(${test_target} PROPERTIES ENVIRONMENT SCCACHE_NO_CACHE=1)
+  endif()
+
+  if (NOT CCCL_CUB_PARALLEL_SMALL_TESTS)
+    set_tests_properties(${test_target} PROPERTIES RUN_SERIAL TRUE)
+  endif()
 
   # Ensure that we test with assertions enabled
   target_compile_definitions(${test_target} PRIVATE CCCL_ENABLE_ASSERTIONS)
