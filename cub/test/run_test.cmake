@@ -51,6 +51,31 @@ endfunction()
 ######################################################################
 
 # Parse arguments
+#
+# The normal CUB add_test path passes TEST and ARGS through -D variables.
+# Catch2 discovery uses this script as a target launcher, so the executable and
+# Catch2 arguments arrive after -P instead. Support both forms so discovered
+# Catch2 tests still run through this wrapper.
+if (NOT DEFINED TEST AND DEFINED CMAKE_ARGC)
+  set(_script_arg_start -1)
+  math(EXPR _last_arg "${CMAKE_ARGC} - 1")
+  foreach (_arg_idx RANGE 0 ${_last_arg})
+    if ("${CMAKE_ARGV${_arg_idx}}" STREQUAL "${CMAKE_SCRIPT_MODE_FILE}")
+      math(EXPR _script_arg_start "${_arg_idx} + 1")
+      break()
+    endif()
+  endforeach()
+
+  if (NOT _script_arg_start EQUAL -1 AND _script_arg_start LESS CMAKE_ARGC)
+    set(TEST "${CMAKE_ARGV${_script_arg_start}}")
+    math(EXPR _arg_idx "${_script_arg_start} + 1")
+    while (_arg_idx LESS CMAKE_ARGC)
+      list(APPEND ARGS "${CMAKE_ARGV${_arg_idx}}")
+      math(EXPR _arg_idx "${_arg_idx} + 1")
+    endwhile()
+  endif()
+endif()
+
 if (NOT DEFINED TEST)
   usage()
   message(FATAL_ERROR "TEST must be defined")
@@ -64,7 +89,25 @@ if (NOT DEFINED TYPE)
   set(TYPE "none")
 endif()
 
-if (NOT DEFINED MODE)
+# Catch2 discovery/listing must produce clean machine-readable output for
+# catch_discover_tests. Do not wrap it in compute-sanitizer or print the usual
+# command banner.
+set(is_catch2_discovery OFF)
+if (TYPE STREQUAL "Catch2")
+  foreach (arg IN LISTS ARGS)
+    if (
+      arg STREQUAL "--list-tests"
+      OR arg STREQUAL "--list-test-names-only"
+      OR arg STREQUAL "--list-reporters"
+    )
+      set(is_catch2_discovery ON)
+    endif()
+  endforeach()
+endif()
+
+if (is_catch2_discovery)
+  set(MODE "none")
+elseif (NOT DEFINED MODE)
   if (DEFINED ENV{CCCL_TEST_MODE})
     message(STATUS "Using CCCL_TEST_MODE from env: $ENV{CCCL_TEST_MODE}")
     set(MODE $ENV{CCCL_TEST_MODE})
@@ -76,7 +119,14 @@ elseif (NOT MODE)
 endif()
 
 if (MODE STREQUAL "none")
-  run_command(${TEST} ${ARGS})
+  if (is_catch2_discovery)
+    execute_process(COMMAND ${TEST} ${ARGS} RESULT_VARIABLE result)
+    if (NOT result EQUAL 0)
+      message(FATAL_ERROR ">> Exit Status: ${result}")
+    endif()
+  else()
+    run_command(${TEST} ${ARGS})
+  endif()
 elseif (MODE MATCHES "^compute-sanitizer-(.*)$")
   set(tool ${CMAKE_MATCH_1})
 

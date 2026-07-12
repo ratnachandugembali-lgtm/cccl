@@ -15,6 +15,21 @@ cccl_get_c2h()
 cccl_get_cudatoolkit()
 cccl_get_nvtx()
 
+option(
+  CUB_ENABLE_PARALLEL_TESTS
+  "Enable parallel CUB CTest scheduling; large-memory cases stay serial and medium-memory cases share a resource lock"
+  OFF
+)
+
+if (CUB_ENABLE_PARALLEL_TESTS)
+  cccl_get_catch2()
+  if (DEFINED Catch2_SOURCE_DIR AND EXISTS "${Catch2_SOURCE_DIR}/extras/Catch.cmake")
+    include("${Catch2_SOURCE_DIR}/extras/Catch.cmake")
+  else()
+    include(Catch)
+  endif()
+endif()
+
 set(build_nvrtc_tests ON)
 if ("NVHPC" STREQUAL "${CMAKE_CXX_COMPILER_ID}")
   set(build_nvrtc_tests OFF)
@@ -61,6 +76,9 @@ function(_cub_is_fail_test result_var test_src)
     set(${result_var} TRUE PARENT_SCOPE)
   endif()
 endfunction()
+
+set(_cub_medium_device_memory_resource_lock "cub_medium_device_memory")
+
 
 ## _cub_launcher_requires_rdc
 #
@@ -141,21 +159,91 @@ function(
     )
     target_include_directories(${test_target} PUBLIC "${CUB_SOURCE_DIR}/test")
 
-    add_test(
-      NAME ${test_target}
-      # gersemi: off
-      COMMAND
-        "${CMAKE_COMMAND}"
-           "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
-           "-DTEST=$<TARGET_FILE:${test_target}>"
-           "-DTYPE=Catch2"
-           -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
-      # gersemi: on
-    )
-    set_tests_properties(
-      ${test_target}
-      PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
-    )
+    if (CUB_ENABLE_PARALLEL_TESTS)
+      # Catch2's discovery helper uses CROSSCOMPILING_EMULATOR as the test
+      # executor. Route discovered cases through CUB's wrapper so sanitizer mode
+      # and skip handling stay consistent with the existing test path.
+      set_property(
+        TARGET ${test_target}
+        PROPERTY CROSSCOMPILING_EMULATOR
+          "${CMAKE_COMMAND};-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR};-DTYPE=Catch2;-P;${CUB_SOURCE_DIR}/test/run_test.cmake"
+      )
+
+      file(READ "${CUB_SOURCE_DIR}/test/${test_src}" _cub_test_src_text)
+      set(cub_test_common_properties
+        SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+        ENVIRONMENT SCCACHE_NO_CACHE=1
+      )
+      if (_cub_test_src_text MATCHES "\\[medium-mem\\]")
+        list(APPEND cub_test_common_properties
+          RESOURCE_LOCK ${_cub_medium_device_memory_resource_lock}
+        )
+      endif()
+
+      if (_cub_test_src_text MATCHES "\\[large-mem\\]")
+        # Keep all non-large Catch2 cases from this binary grouped into one
+        # CTest entry. Only the large-memory cases need per-case discovery so
+        # they can be labeled and serialized independently.
+        add_test(
+          NAME ${test_target}
+          # gersemi: off
+          COMMAND
+            "${CMAKE_COMMAND}"
+               "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+               "-DTEST=$<TARGET_FILE:${test_target}>"
+               "-DARGS=~[large-mem]"
+               "-DTYPE=Catch2"
+               -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+          # gersemi: on
+        )
+        set_tests_properties(
+          ${test_target}
+          PROPERTIES ${cub_test_common_properties}
+        )
+        catch_discover_tests(
+          ${test_target}
+          TEST_SPEC "[large-mem]"
+          TEST_PREFIX "${test_target}."
+          DISCOVERY_MODE PRE_TEST
+          PROPERTIES
+            ${cub_test_common_properties}
+            RUN_SERIAL TRUE
+            LABELS "large-mem"
+        )
+      else()
+        add_test(
+          NAME ${test_target}
+          # gersemi: off
+          COMMAND
+            "${CMAKE_COMMAND}"
+               "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+               "-DTEST=$<TARGET_FILE:${test_target}>"
+               "-DTYPE=Catch2"
+               -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+          # gersemi: on
+        )
+        set_tests_properties(
+          ${test_target}
+          PROPERTIES ${cub_test_common_properties}
+        )
+      endif()
+    else()
+      add_test(
+        NAME ${test_target}
+        # gersemi: off
+        COMMAND
+          "${CMAKE_COMMAND}"
+             "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+             "-DTEST=$<TARGET_FILE:${test_target}>"
+             "-DTYPE=Catch2"
+             -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+        # gersemi: on
+      )
+      set_tests_properties(
+        ${test_target}
+        PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+      )
+    endif()
 
     if ("${test_target}" MATCHES "nvrtc")
       configure_file(
@@ -285,11 +373,26 @@ function(
         ${test_target}
         PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
       )
+      if (CUB_ENABLE_PARALLEL_TESTS)
+        file(READ "${CUB_SOURCE_DIR}/test/${test_src}" _cub_test_src_text)
+        if (_cub_test_src_text MATCHES "\\[large-mem\\]")
+          set_tests_properties(${test_target} PROPERTIES RUN_SERIAL TRUE LABELS "large-mem")
+        endif()
+        if (_cub_test_src_text MATCHES "\\[medium-mem\\]")
+          set_tests_properties(
+            ${test_target}
+            PROPERTIES RESOURCE_LOCK ${_cub_medium_device_memory_resource_lock}
+          )
+        endif()
+      endif()
     endif()
   endif() # Not catch2 test
 
   # Disable build caching for compile tests
-  set_tests_properties(${test_target} PROPERTIES ENVIRONMENT SCCACHE_NO_CACHE=1)
+  if (NOT (is_catch2_test AND CUB_ENABLE_PARALLEL_TESTS))
+    set_tests_properties(${test_target} PROPERTIES ENVIRONMENT SCCACHE_NO_CACHE=1)
+  endif()
+
 
   # Ensure that we test with assertions enabled
   target_compile_definitions(${test_target} PRIVATE CCCL_ENABLE_ASSERTIONS)
