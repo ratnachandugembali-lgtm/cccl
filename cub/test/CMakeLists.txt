@@ -202,7 +202,7 @@ function(
         )
         catch_discover_tests(
           ${test_target}
-          TEST_SPEC "[large-mem]"
+          TEST_SPEC "[large-mem]" "--allow-running-no-tests"
           TEST_PREFIX "${test_target}."
           EXTRA_ARGS "--allow-running-no-tests"
           DISCOVERY_MODE PRE_TEST
