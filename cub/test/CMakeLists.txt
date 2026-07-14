@@ -23,11 +23,7 @@ option(
 
 if (CUB_ENABLE_PARALLEL_TESTS)
   cccl_get_catch2()
-  if (DEFINED Catch2_SOURCE_DIR AND EXISTS "${Catch2_SOURCE_DIR}/extras/Catch.cmake")
-    include("${Catch2_SOURCE_DIR}/extras/Catch.cmake")
-  else()
-    include(Catch)
-  endif()
+  include(Catch)
 endif()
 
 set(build_nvrtc_tests ON)
