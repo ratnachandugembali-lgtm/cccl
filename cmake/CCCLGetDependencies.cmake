@@ -27,6 +27,11 @@ macro(cccl_get_catch2)
   CPMAddPackage("gh:catchorg/Catch2@3.12.0")
 endmacro()
 
+macro(cccl_get_catch2_discovery)
+  cccl_get_catch2()
+  include(Catch)
+endmacro()
+
 macro(cccl_get_cccl)
   find_package(
     CCCL

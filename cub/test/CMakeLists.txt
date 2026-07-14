@@ -22,8 +22,7 @@ option(
 )
 
 if (CUB_ENABLE_PARALLEL_TESTS)
-  cccl_get_catch2()
-  include(Catch)
+  cccl_get_catch2_discovery()
 endif()
 
 set(build_nvrtc_tests ON)
