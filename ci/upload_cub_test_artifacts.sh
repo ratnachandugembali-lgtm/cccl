@@ -55,12 +55,16 @@ build_dir_regex="build${CCCL_BUILD_INFIX:+/$CCCL_BUILD_INFIX}/cub[^/]*"
 for preset_variant in "${preset_variants[@]}"; do
 
   # Shared across all presets:
+  # Note: cub/rapids-cmake/ holds the GPU resource-spec generator and test
+  # runner; every test requires the resource_spec fixture, so tests cannot
+  # run from unpacked artifacts without these.
   ci/util/artifacts/stage.sh "$artifact_prefix-$preset_variant" \
       "$build_dir_regex/build\.ninja$" \
       "$build_dir_regex/.*rules\.ninja$" \
       "$build_dir_regex/CMakeCache\.txt$" \
       "$build_dir_regex/.*VerifyGlobs\.cmake$" \
-      "$build_dir_regex/.*CTestTestfile\.cmake$" > /dev/null
+      "$build_dir_regex/.*CTestTestfile\.cmake$" \
+      "$build_dir_regex/cub/rapids-cmake/.*" > /dev/null
 
   # Add per-preset executables:
   if [[ "$preset_variant" == lid_* ]]; then
