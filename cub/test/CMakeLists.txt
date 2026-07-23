@@ -22,7 +22,21 @@ if ("${CMAKE_VERSION}" VERSION_LESS 3.28)
 endif()
 cccl_get_rapids_test()
 rapids_test_init()
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CubTestFootprints.cmake")
+# GPU scheduling claims for the split test registration. Memory metadata
+# lives in the Catch2 tags ([large-mem]); there is no per-test name table.
+set(
+  CCCL_TEST_GPU_PERCENT_SMALL
+  15
+  CACHE STRING
+  "GPU percentage claimed by CUB test cases not tagged [large-mem]."
+)
+set(
+  CCCL_TEST_GPU_PERCENT_LARGE
+  100
+  CACHE STRING
+  "GPU percentage claimed by [large-mem] CUB test cases and legacy tests."
+)
+mark_as_advanced(CCCL_TEST_GPU_PERCENT_SMALL CCCL_TEST_GPU_PERCENT_LARGE)
 
 # Stage the rapids-cmake GPU runner into the build tree. The runner only uses
 # CMake features available before 3.28, so keep its local minimum aligned with
@@ -134,6 +148,7 @@ function(
   set(test_target cub.test.${test_name}${variant_suffix})
   set(${target_name_var} ${test_target} PARENT_SCOPE)
 
+
   # The metatarget path ignores the variant suffix:
   set(metatarget_path cub.test.${test_name})
 
@@ -174,28 +189,45 @@ function(
     )
     target_include_directories(${test_target} PUBLIC "${CUB_SOURCE_DIR}/test")
 
-    add_test(
-      NAME ${test_target}
-      # gersemi: off
-      COMMAND
-        "${CMAKE_COMMAND}"
-           "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
-           "-DTEST=$<TARGET_FILE:${test_target}>"
-           "-DTYPE=Catch2"
-           ${_cccl_gpu_test_runner_arg}
-           -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
-      # gersemi: on
-    )
-    set_tests_properties(
-      ${test_target}
-      PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
-    )
-    cub_test_gpu_percent(_cub_gpu_percent "${test_name}")
-    rapids_test_gpu_requirements(
-      ${test_target}
-      GPUS 1
-      PERCENT ${_cub_gpu_percent}
-    )
+    # Every Catch2 binary registers two grouped CTest entries filtered by the
+    # [large-mem] Catch2 tag: untagged cases run in the .small entry under the
+    # small claim; tagged cases run in the .large entry under a
+    # whole-GPU claim. Both entries always register and pass
+    # --allow-running-no-tests, so a half whose filter matches nothing (most
+    # .large halves today) passes instead of failing.
+    foreach (test_half IN ITEMS small large)
+      if (test_half STREQUAL "small")
+        set(_cub_half_filter "~[large-mem]")
+        set(_cub_half_percent ${CCCL_TEST_GPU_PERCENT_SMALL})
+      else()
+        set(_cub_half_filter "[large-mem]")
+        set(_cub_half_percent ${CCCL_TEST_GPU_PERCENT_LARGE})
+      endif()
+      add_test(
+        NAME ${test_target}.${test_half}
+        # gersemi: off
+        COMMAND
+          "${CMAKE_COMMAND}"
+             "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+             "-DTEST=$<TARGET_FILE:${test_target}>"
+             "-DTYPE=Catch2"
+             "-DARGS=${_cub_half_filter};--allow-running-no-tests"
+             ${_cccl_gpu_test_runner_arg}
+             -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+        # gersemi: on
+      )
+      set_tests_properties(
+        ${test_target}.${test_half}
+        PROPERTIES
+          SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+          ENVIRONMENT SCCACHE_NO_CACHE=1
+      )
+      rapids_test_gpu_requirements(
+        ${test_target}.${test_half}
+        GPUS 1
+        PERCENT ${_cub_half_percent}
+      )
+    endforeach()
 
     if ("${test_target}" MATCHES "nvrtc")
       configure_file(
@@ -310,6 +342,11 @@ function(
         ERROR_REGEX_LABEL "expected-error"
         ERROR_NUMBER_TARGET_NAME_REGEX "\\.err_([0-9]+)"
       )
+      # Disable build caching for compile tests
+      set_tests_properties(
+        ${test_target}
+        PROPERTIES ENVIRONMENT SCCACHE_NO_CACHE=1
+      )
     else()
       add_test(
         NAME ${test_target}
@@ -324,19 +361,19 @@ function(
       )
       set_tests_properties(
         ${test_target}
-        PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+        PROPERTIES
+          SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+          ENVIRONMENT SCCACHE_NO_CACHE=1
       )
-      cub_test_gpu_percent(_cub_gpu_percent "${test_name}")
+      # Legacy tests are not Catch2 and cannot be tag-filtered; claim a
+      # whole GPU rather than assuming they are small.
       rapids_test_gpu_requirements(
         ${test_target}
         GPUS 1
-        PERCENT ${_cub_gpu_percent}
+        PERCENT ${CCCL_TEST_GPU_PERCENT_LARGE}
       )
     endif()
   endif() # Not catch2 test
-
-  # Disable build caching for compile tests
-  set_tests_properties(${test_target} PROPERTIES ENVIRONMENT SCCACHE_NO_CACHE=1)
 
   # Ensure that we test with assertions enabled
   target_compile_definitions(${test_target} PRIVATE CCCL_ENABLE_ASSERTIONS)
