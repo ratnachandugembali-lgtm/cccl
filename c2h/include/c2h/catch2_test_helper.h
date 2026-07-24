@@ -608,6 +608,41 @@ class nvtx_fixture
 };
 } // namespace detail
 
+namespace c2h::detail
+{
+// Compile-time substring search used to classify the GPU memory usage of
+// test cases below.
+constexpr bool tag_contains(const char* haystack, const char* needle) noexcept
+{
+  for (; *haystack != '\0'; ++haystack)
+  {
+    const char* h = haystack;
+    const char* n = needle;
+    while (*n != '\0' && *h == *n)
+    {
+      ++h;
+      ++n;
+    }
+    if (*n == '\0')
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+constexpr bool has_mem_tag(const char* tags) noexcept
+{
+  return tag_contains(tags, "[large-mem]") || tag_contains(tags, "[small]");
+}
+} // namespace c2h::detail
+
+// Every C2H test case carries a GPU memory classification tag, consumed by
+// the CTest registration in cub/test/CMakeLists.txt. c2h appends [small] by
+// default; memory-heavy cases opt out by declaring [large-mem] in their tag
+// string. TAG must be a string literal.
+#define C2H_MEM_CLASSIFY_TAG(TAG) (::c2h::detail::has_mem_tag(TAG) ? TAG : TAG "[small]")
+
 #define C2H_TEST_NAME_IMPL(NAME, PARAM) C2H_TEST_STR(NAME) "(" C2H_TEST_STR(PARAM) ")"
 
 #define C2H_TEST_NAME(NAME) C2H_TEST_NAME_IMPL(NAME, VAR_IDX)
@@ -619,27 +654,27 @@ class nvtx_fixture
   using C2H_TEST_CONCAT(types_, ID) = c2h::cartesian_product<__VA_ARGS__>; \
   CATCH_TEMPLATE_LIST_TEST_CASE_METHOD(::detail::nvtx_fixture, C2H_TEST_NAME(NAME), TAG, C2H_TEST_CONCAT(types_, ID))
 
-#define C2H_TEST(NAME, TAG, ...) C2H_TEST_IMPL(__LINE__, NAME, TAG, __VA_ARGS__)
+#define C2H_TEST(NAME, TAG, ...) C2H_TEST_IMPL(__LINE__, NAME, C2H_MEM_CLASSIFY_TAG(TAG), __VA_ARGS__)
 
 #define C2H_TEST_WITH_FIXTURE_IMPL(ID, FIXTURE, NAME, TAG, ...)            \
   using C2H_TEST_CONCAT(types_, ID) = c2h::cartesian_product<__VA_ARGS__>; \
   CATCH_TEMPLATE_LIST_TEST_CASE_METHOD(FIXTURE, C2H_TEST_NAME(NAME), TAG, C2H_TEST_CONCAT(types_, ID))
 
 #define C2H_TEST_WITH_FIXTURE(FIXTURE, NAME, TAG, ...) \
-  C2H_TEST_WITH_FIXTURE_IMPL(__LINE__, FIXTURE, NAME, TAG, __VA_ARGS__)
+  C2H_TEST_WITH_FIXTURE_IMPL(__LINE__, FIXTURE, NAME, C2H_MEM_CLASSIFY_TAG(TAG), __VA_ARGS__)
 
 #define C2H_TEST_LIST_IMPL(ID, NAME, TAG, ...)                     \
   using C2H_TEST_CONCAT(types_, ID) = c2h::type_list<__VA_ARGS__>; \
   CATCH_TEMPLATE_LIST_TEST_CASE_METHOD(::detail::nvtx_fixture, C2H_TEST_NAME(NAME), TAG, C2H_TEST_CONCAT(types_, ID))
 
-#define C2H_TEST_LIST(NAME, TAG, ...) C2H_TEST_LIST_IMPL(__LINE__, NAME, TAG, __VA_ARGS__)
+#define C2H_TEST_LIST(NAME, TAG, ...) C2H_TEST_LIST_IMPL(__LINE__, NAME, C2H_MEM_CLASSIFY_TAG(TAG), __VA_ARGS__)
 
 #define C2H_TEST_LIST_WITH_FIXTURE_IMPL(ID, FIXTURE, NAME, TAG, ...) \
   using C2H_TEST_CONCAT(types_, ID) = c2h::type_list<__VA_ARGS__>;   \
   CATCH_TEMPLATE_LIST_TEST_CASE_METHOD(FIXTURE, C2H_TEST_NAME(NAME), TAG, C2H_TEST_CONCAT(types_, ID))
 
 #define C2H_TEST_LIST_WITH_FIXTURE(FIXTURE, NAME, TAG, ...) \
-  C2H_TEST_LIST_WITH_FIXTURE_IMPL(__LINE__, FIXTURE, NAME, TAG, __VA_ARGS__)
+  C2H_TEST_LIST_WITH_FIXTURE_IMPL(__LINE__, FIXTURE, NAME, C2H_MEM_CLASSIFY_TAG(TAG), __VA_ARGS__)
 
 #define C2H_TEST_STR(a) #a
 
