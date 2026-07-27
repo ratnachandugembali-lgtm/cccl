@@ -113,7 +113,7 @@ catch (std::bad_alloc& e)
 }
 
 C2H_TEST("DeviceMemcpy::Batched works for a very large buffer",
-         "[memcpy][skip-cs-initcheck][skip-cs-racecheck][skip-cs-synccheck]")
+         "[large-mem][memcpy][skip-cs-initcheck][skip-cs-racecheck][skip-cs-synccheck]")
 try
 {
   using data_t        = uint64_t;
