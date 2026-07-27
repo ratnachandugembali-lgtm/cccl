@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 4.0)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   if (CUB_ENABLE_RDC_TESTS)
     if ("${CMAKE_VERSION}" VERSION_LESS 3.27.5)
@@ -14,6 +16,10 @@ endif()
 cccl_get_c2h()
 cccl_get_cudatoolkit()
 cccl_get_nvtx()
+
+cccl_get_rapids_test()
+rapids_test_init()
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/CubTestFootprints.cmake")
 
 set(build_nvrtc_tests ON)
 if ("NVHPC" STREQUAL "${CMAKE_CXX_COMPILER_ID}")
@@ -149,12 +155,19 @@ function(
            "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
            "-DTEST=$<TARGET_FILE:${test_target}>"
            "-DTYPE=Catch2"
+           "-DGPU_TEST_RUNNER=${rapids-cmake-dir}/test/detail/run_gpu_test.cmake"
            -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
       # gersemi: on
     )
     set_tests_properties(
       ${test_target}
       PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+    )
+    cub_test_gpu_percent("${test_name}" _cub_gpu_percent)
+    rapids_test_gpu_requirements(
+      ${test_target}
+      GPUS 1
+      PERCENT ${_cub_gpu_percent}
     )
 
     if ("${test_target}" MATCHES "nvrtc")
@@ -278,12 +291,19 @@ function(
           "${CMAKE_COMMAND}"
             "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
             "-DTEST=$<TARGET_FILE:${test_target}>"
+            "-DGPU_TEST_RUNNER=${rapids-cmake-dir}/test/detail/run_gpu_test.cmake"
             -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
         # gersemi: on
       )
       set_tests_properties(
         ${test_target}
         PROPERTIES SKIP_REGULAR_EXPRESSION "CCCL_SKIP_TEST"
+      )
+      cub_test_gpu_percent("${test_name}" _cub_gpu_percent)
+      rapids_test_gpu_requirements(
+        ${test_target}
+        GPUS 1
+        PERCENT ${_cub_gpu_percent}
       )
     endif()
   endif() # Not catch2 test
