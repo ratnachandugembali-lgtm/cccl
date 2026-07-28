@@ -42,7 +42,7 @@ struct greater_than_t
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("Device partition works with default environment", "[partition][device]")
+CUB_TEST_CASE("Device partition works with default environment", "[partition][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -65,7 +65,7 @@ TEST_CASE("Device partition works with default environment", "[partition][device
   REQUIRE(d_out == expected_output);
 }
 
-TEST_CASE("Device partition flagged works with default environment", "[partition][device]")
+CUB_TEST_CASE("Device partition flagged works with default environment", "[partition][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -88,7 +88,7 @@ TEST_CASE("Device partition flagged works with default environment", "[partition
   REQUIRE(d_out == expected_output);
 }
 
-TEST_CASE("Device partition three-way works with default environment", "[partition][device]")
+CUB_TEST_CASE("Device partition three-way works with default environment", "[partition][device]", CUB_SMALL)
 {
   auto d_in             = c2h::device_vector<int>{0, 2, 3, 9, 5, 2, 81, 8};
   auto d_small_out      = c2h::device_vector<int>(8);
@@ -237,7 +237,7 @@ CUB_TEST("Device partition three-way uses environment", "[partition][device]", C
   REQUIRE(d_large_out == expected_large);
 }
 
-TEST_CASE("Device partition uses custom stream", "[partition][device]")
+CUB_TEST_CASE("Device partition uses custom stream", "[partition][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;

@@ -35,7 +35,7 @@ namespace stdexec = cuda::std::execution;
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("Device segmented reduce works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device segmented reduce works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -51,7 +51,7 @@ TEST_CASE("Device segmented reduce works with default environment", "[segmented_
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device segmented sum works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device segmented sum works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -67,7 +67,7 @@ TEST_CASE("Device segmented sum works with default environment", "[segmented_red
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device segmented min works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device segmented min works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -83,7 +83,7 @@ TEST_CASE("Device segmented min works with default environment", "[segmented_red
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device segmented max works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device segmented max works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -99,7 +99,7 @@ TEST_CASE("Device segmented max works with default environment", "[segmented_red
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device segmented argmin works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device segmented argmin works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -120,7 +120,7 @@ TEST_CASE("Device segmented argmin works with default environment", "[segmented_
   REQUIRE(h_out[2].value == 1);
 }
 
-TEST_CASE("Device segmented argmax works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device segmented argmax works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -141,7 +141,9 @@ TEST_CASE("Device segmented argmax works with default environment", "[segmented_
   REQUIRE(h_out[2].value == 2);
 }
 
-TEST_CASE("Device fixed-size segmented reduce works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device fixed-size segmented reduce works with default environment",
+              "[segmented_reduce][device]",
+              CUB_SMALL)
 {
   int num_segments = 2;
   int segment_size = 3;
@@ -156,7 +158,7 @@ TEST_CASE("Device fixed-size segmented reduce works with default environment", "
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device fixed-size segmented sum works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device fixed-size segmented sum works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments = 2;
   int segment_size = 3;
@@ -169,7 +171,7 @@ TEST_CASE("Device fixed-size segmented sum works with default environment", "[se
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device fixed-size segmented min works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device fixed-size segmented min works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments = 2;
   int segment_size = 3;
@@ -182,7 +184,7 @@ TEST_CASE("Device fixed-size segmented min works with default environment", "[se
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device fixed-size segmented max works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device fixed-size segmented max works with default environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments = 2;
   int segment_size = 3;
@@ -195,7 +197,9 @@ TEST_CASE("Device fixed-size segmented max works with default environment", "[se
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device fixed-size segmented argmin works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device fixed-size segmented argmin works with default environment",
+              "[segmented_reduce][device]",
+              CUB_SMALL)
 {
   int num_segments = 2;
   int segment_size = 3;
@@ -208,7 +212,9 @@ TEST_CASE("Device fixed-size segmented argmin works with default environment", "
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device fixed-size segmented argmax works with default environment", "[segmented_reduce][device]")
+CUB_TEST_CASE("Device fixed-size segmented argmax works with default environment",
+              "[segmented_reduce][device]",
+              CUB_SMALL)
 {
   int num_segments = 2;
   int segment_size = 3;

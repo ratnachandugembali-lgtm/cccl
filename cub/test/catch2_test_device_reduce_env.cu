@@ -70,7 +70,7 @@ using block_size_check_plus_t = block_size_extracting_op<cuda::std::plus<>>;
 // We need a test of simple use to check if default environment works.
 // ifdef it out not to spend time compiling and running it twice.
 #if TEST_LAUNCH == 0
-TEST_CASE("Device reduce works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device reduce works with default environment", "[reduce][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using value_t     = int;
@@ -99,7 +99,7 @@ TEST_CASE("Device reduce works with default environment", "[reduce][device]")
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-TEST_CASE("Device Sum works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device Sum works with default environment", "[reduce][device]", CUB_SMALL)
 {
   using num_items_t     = int;
   using value_t         = int;
@@ -746,7 +746,7 @@ CUB_TEST("Device sum not_guaranteed falls back when output type differs from acc
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("Device Min works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device Min works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto input  = c2h::device_vector<float>{3.0f, 1.0f, 4.0f, 0.0f, 2.0f};
   auto output = c2h::device_vector<float>(1);
@@ -756,7 +756,7 @@ TEST_CASE("Device Min works with default environment", "[reduce][device]")
   REQUIRE(output[0] == 0.0f);
 }
 
-TEST_CASE("Device Max works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device Max works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto input  = c2h::device_vector<float>{3.0f, 1.0f, 4.0f, 0.0f, 2.0f};
   auto output = c2h::device_vector<float>(1);
@@ -766,7 +766,7 @@ TEST_CASE("Device Max works with default environment", "[reduce][device]")
   REQUIRE(output[0] == 4.0f);
 }
 
-TEST_CASE("Device TransformReduce works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device TransformReduce works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto d_in  = c2h::device_vector<int>{1, 2, 3, 4};
   auto d_out = thrust::device_vector<int>(1);
@@ -780,7 +780,7 @@ TEST_CASE("Device TransformReduce works with default environment", "[reduce][dev
   REQUIRE(d_out[0] == -10);
 }
 
-TEST_CASE("Device ReduceByKey works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device ReduceByKey works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto d_keys_in        = c2h::device_vector<int>{0, 2, 2, 9, 5, 5, 5, 8};
   auto d_values_in      = c2h::device_vector<int>{0, 7, 1, 6, 2, 5, 3, 4};
@@ -808,7 +808,7 @@ TEST_CASE("Device ReduceByKey works with default environment", "[reduce][device]
   REQUIRE(d_aggregates_out == expected_aggregates);
 }
 
-TEST_CASE("Device ArgMin works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device ArgMin works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto input        = c2h::device_vector<float>{3.0f, 1.0f, 4.0f, 0.0f, 2.0f};
   auto min_output   = c2h::device_vector<float>(1);
@@ -821,7 +821,7 @@ TEST_CASE("Device ArgMin works with default environment", "[reduce][device]")
   REQUIRE(index_output[0] == 3);
 }
 
-TEST_CASE("Device ArgMax works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device ArgMax works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto input        = c2h::device_vector<float>{3.0f, 1.0f, 4.0f, 0.0f, 2.0f};
   auto max_output   = c2h::device_vector<float>(1);
@@ -834,7 +834,7 @@ TEST_CASE("Device ArgMax works with default environment", "[reduce][device]")
   REQUIRE(index_output[0] == 2);
 }
 
-TEST_CASE("Device ArgMin with compare_op works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device ArgMin with compare_op works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto input        = c2h::device_vector<float>{3.0f, 1.0f, 4.0f, 0.0f, 2.0f};
   auto min_output   = c2h::device_vector<float>(1);
@@ -847,7 +847,7 @@ TEST_CASE("Device ArgMin with compare_op works with default environment", "[redu
   REQUIRE(index_output[0] == 3);
 }
 
-TEST_CASE("Device ArgMax with compare_op works with default environment", "[reduce][device]")
+CUB_TEST_CASE("Device ArgMax with compare_op works with default environment", "[reduce][device]", CUB_SMALL)
 {
   auto input        = c2h::device_vector<float>{3.0f, 1.0f, 4.0f, 0.0f, 2.0f};
   auto max_output   = c2h::device_vector<float>(1);

@@ -31,8 +31,9 @@ namespace stdexec = cuda::std::execution;
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("Device adjacent difference subtract left copy works with default environment",
-          "[adjacent_difference][device]")
+CUB_TEST_CASE("Device adjacent difference subtract left copy works with default environment",
+              "[adjacent_difference][device]",
+              CUB_SMALL)
 {
   auto input  = c2h::device_vector<int>{1, 2, 1, 2, 1, 2, 1, 2};
   auto output = c2h::device_vector<int>(8);
@@ -45,7 +46,9 @@ TEST_CASE("Device adjacent difference subtract left copy works with default envi
   REQUIRE(output == expected);
 }
 
-TEST_CASE("Device adjacent difference subtract left works with default environment", "[adjacent_difference][device]")
+CUB_TEST_CASE("Device adjacent difference subtract left works with default environment",
+              "[adjacent_difference][device]",
+              CUB_SMALL)
 {
   auto data = c2h::device_vector<int>{1, 2, 1, 2, 1, 2, 1, 2};
 
@@ -55,8 +58,9 @@ TEST_CASE("Device adjacent difference subtract left works with default environme
   REQUIRE(data == expected);
 }
 
-TEST_CASE("Device adjacent difference subtract right copy works with default environment",
-          "[adjacent_difference][device]")
+CUB_TEST_CASE("Device adjacent difference subtract right copy works with default environment",
+              "[adjacent_difference][device]",
+              CUB_SMALL)
 {
   auto input  = c2h::device_vector<int>{1, 2, 1, 2, 1, 2, 1, 2};
   auto output = c2h::device_vector<int>(8);
@@ -69,7 +73,9 @@ TEST_CASE("Device adjacent difference subtract right copy works with default env
   REQUIRE(output == expected);
 }
 
-TEST_CASE("Device adjacent difference subtract right works with default environment", "[adjacent_difference][device]")
+CUB_TEST_CASE("Device adjacent difference subtract right works with default environment",
+              "[adjacent_difference][device]",
+              CUB_SMALL)
 {
   auto data = c2h::device_vector<int>{1, 2, 1, 2, 1, 2, 1, 2};
 

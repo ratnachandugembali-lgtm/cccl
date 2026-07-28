@@ -28,7 +28,9 @@ namespace stdexec = cuda::std::execution;
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceSegmentedRadixSort::SortPairs works with default environment", "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortPairs works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -54,8 +56,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortPairs works with default environment", 
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending works with default environment",
-          "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -81,7 +84,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending works with default envi
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortKeys works with default environment", "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortKeys works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -101,8 +106,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortKeys works with default environment", "
   REQUIRE(keys_out == expected_keys);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortKeysDescending works with default environment",
-          "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortKeysDescending works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -122,8 +128,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortKeysDescending works with default envir
   REQUIRE(keys_out == expected_keys);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortKeys DoubleBuffer works with default environment",
-          "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortKeys DoubleBuffer works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_buf = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_alt = c2h::device_vector<int>(7);
@@ -142,8 +149,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortKeys DoubleBuffer works with default en
   REQUIRE(result_keys == expected_keys);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortKeysDescending DoubleBuffer works with default environment",
-          "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortKeysDescending DoubleBuffer works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_buf = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_alt = c2h::device_vector<int>(7);
@@ -324,7 +332,7 @@ CUB_TEST("DeviceSegmentedRadixSort::SortKeysDescending uses environment", "[segm
   REQUIRE(keys_out == expected_keys);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortPairs uses custom stream", "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortPairs uses custom stream", "[segmented_radix_sort][device]", CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -376,7 +384,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortPairs uses custom stream", "[segmented_
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending uses custom stream", "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending uses custom stream",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -428,7 +438,7 @@ TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending uses custom stream", "[
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortKeys uses custom stream", "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortKeys uses custom stream", "[segmented_radix_sort][device]", CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -472,7 +482,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortKeys uses custom stream", "[segmented_r
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortKeysDescending uses custom stream", "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortKeysDescending uses custom stream",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -596,8 +608,9 @@ CUB_TEST("DeviceSegmentedRadixSort::SortKeysDescending DoubleBuffer uses environ
   REQUIRE(result_keys == expected_keys);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortPairs DoubleBuffer works with default environment",
-          "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortPairs DoubleBuffer works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_buf   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_alt   = c2h::device_vector<int>(7);
@@ -624,8 +637,9 @@ TEST_CASE("DeviceSegmentedRadixSort::SortPairs DoubleBuffer works with default e
   REQUIRE(result_values == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending DoubleBuffer works with default environment",
-          "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortPairsDescending DoubleBuffer works with default environment",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_buf   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_alt   = c2h::device_vector<int>(7);
@@ -754,7 +768,9 @@ CUB_TEST("DeviceSegmentedRadixSort::SortPairsDescending DoubleBuffer uses enviro
   REQUIRE(result_values == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedRadixSort::SortPairs DoubleBuffer uses custom stream", "[segmented_radix_sort][device]")
+CUB_TEST_CASE("DeviceSegmentedRadixSort::SortPairs DoubleBuffer uses custom stream",
+              "[segmented_radix_sort][device]",
+              CUB_SMALL)
 {
   auto keys_buf   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_alt   = c2h::device_vector<int>(7);

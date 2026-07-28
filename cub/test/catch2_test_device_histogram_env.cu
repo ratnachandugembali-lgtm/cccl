@@ -43,7 +43,7 @@ namespace stdexec = cuda::std::execution;
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceHistogram::HistogramEven works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramEven works with default environment", "[histogram][device]", CUB_SMALL)
 {
   auto d_samples   = c2h::device_vector<int>{0, 2, 1, 0, 3, 4, 2, 1};
   int num_samples  = static_cast<int>(d_samples.size());
@@ -66,7 +66,9 @@ TEST_CASE("DeviceHistogram::HistogramEven works with default environment", "[his
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::HistogramEven works with user provided memory and environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramEven works with user provided memory and environment",
+              "[histogram][device]",
+              CUB_SMALL)
 {
   auto d_samples   = c2h::device_vector<int>{0, 2, 1, 0, 3, 4, 2, 1};
   int num_samples  = static_cast<int>(d_samples.size());
@@ -172,7 +174,7 @@ TEST_CASE("DeviceHistogram::HistogramEven works with user provided memory and en
   }
 }
 
-TEST_CASE("DeviceHistogram::HistogramRange works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramRange works with default environment", "[histogram][device]", CUB_SMALL)
 {
   auto d_samples   = c2h::device_vector<float>{2.2f, 6.1f, 7.5f, 2.9f, 3.5f, 0.3f, 2.9f, 2.1f};
   int num_samples  = static_cast<int>(d_samples.size());
@@ -192,7 +194,9 @@ TEST_CASE("DeviceHistogram::HistogramRange works with default environment", "[hi
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::HistogramRange works with user provided memory and environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramRange works with user provided memory and environment",
+              "[histogram][device]",
+              CUB_SMALL)
 {
   auto d_samples   = c2h::device_vector<float>{2.2f, 6.1f, 7.5f, 2.9f, 3.5f, 0.3f, 2.9f, 2.1f};
   int num_samples  = static_cast<int>(d_samples.size());
@@ -294,7 +298,7 @@ TEST_CASE("DeviceHistogram::HistogramRange works with user provided memory and e
   }
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramEven works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramEven works with default environment", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -328,7 +332,7 @@ TEST_CASE("DeviceHistogram::MultiHistogramEven works with default environment", 
   REQUIRE(d_histogram_b == expected_b);
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramRange works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramRange works with default environment", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -369,7 +373,7 @@ TEST_CASE("DeviceHistogram::MultiHistogramRange works with default environment",
   REQUIRE(d_histogram_b == expected_b);
 }
 
-TEST_CASE("DeviceHistogram::HistogramEven 2D works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramEven 2D works with default environment", "[histogram][device]", CUB_SMALL)
 {
   // 2 rows, 3 samples per row, stride of 4 (1 padding element)
   auto d_samples          = c2h::device_vector<int>{0, 1, 2, -1, 1, 2, 0, -1};
@@ -397,7 +401,7 @@ TEST_CASE("DeviceHistogram::HistogramEven 2D works with default environment", "[
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::HistogramRange 2D works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramRange 2D works with default environment", "[histogram][device]", CUB_SMALL)
 {
   auto d_samples          = c2h::device_vector<int>{0, 1, 2, -1, 1, 2, 0, -1};
   auto d_levels           = c2h::device_vector<int>{0, 1, 2, 3};
@@ -422,7 +426,7 @@ TEST_CASE("DeviceHistogram::HistogramRange 2D works with default environment", "
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramEven 2D works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramEven 2D works with default environment", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -473,7 +477,7 @@ TEST_CASE("DeviceHistogram::MultiHistogramEven 2D works with default environment
   REQUIRE(d_histogram_b == expected_b);
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramRange 2D works with default environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramRange 2D works with default environment", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -567,7 +571,7 @@ CUB_TEST("DeviceHistogram::HistogramEven uses environment", "[histogram][device]
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::HistogramEven uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramEven uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   auto d_samples   = c2h::device_vector<int>{0, 2, 1, 0, 3, 4, 2, 1};
   int num_samples  = static_cast<int>(d_samples.size());
@@ -646,7 +650,7 @@ CUB_TEST("DeviceHistogram::HistogramRange uses environment", "[histogram][device
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::HistogramRange uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramRange uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   auto d_samples   = c2h::device_vector<float>{2.2f, 6.1f, 7.5f, 2.9f, 3.5f, 0.3f, 2.9f, 2.1f};
   int num_samples  = static_cast<int>(d_samples.size());
@@ -735,7 +739,7 @@ CUB_TEST("DeviceHistogram::MultiHistogramEven uses environment", "[histogram][de
   REQUIRE(d_histogram_b == expected_b);
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramEven uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramEven uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -966,7 +970,7 @@ CUB_TEST("DeviceHistogram::MultiHistogramRange uses environment", "[histogram][d
   REQUIRE(d_histogram_b == expected_b);
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramRange uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramRange uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -1070,7 +1074,7 @@ CUB_TEST("DeviceHistogram::HistogramEven 2D uses environment", "[histogram][devi
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::HistogramEven 2D uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramEven 2D uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   auto d_samples          = c2h::device_vector<int>{0, 1, 2, -1, 1, 2, 0, -1};
   int num_levels          = 4;
@@ -1161,7 +1165,7 @@ CUB_TEST("DeviceHistogram::HistogramRange 2D uses environment", "[histogram][dev
   REQUIRE(d_histogram == expected);
 }
 
-TEST_CASE("DeviceHistogram::HistogramRange 2D uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::HistogramRange 2D uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   auto d_samples          = c2h::device_vector<int>{0, 1, 2, -1, 1, 2, 0, -1};
   auto d_levels           = c2h::device_vector<int>{0, 1, 2, 3};
@@ -1270,7 +1274,7 @@ CUB_TEST("DeviceHistogram::MultiHistogramEven 2D uses environment", "[histogram]
   REQUIRE(d_histogram_b == expected_b);
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramEven 2D uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramEven 2D uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -1340,7 +1344,9 @@ TEST_CASE("DeviceHistogram::MultiHistogramEven 2D uses custom stream", "[histogr
 }
 
 #if TEST_LAUNCH == 0
-TEST_CASE("DeviceHistogram::MultiHistogramEven works with user provided memory and environment", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramEven works with user provided memory and environment",
+              "[histogram][device]",
+              CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;
@@ -1539,7 +1545,7 @@ CUB_TEST("DeviceHistogram::MultiHistogramRange 2D uses environment", "[histogram
   REQUIRE(d_histogram_b == expected_b);
 }
 
-TEST_CASE("DeviceHistogram::MultiHistogramRange 2D uses custom stream", "[histogram][device]")
+CUB_TEST_CASE("DeviceHistogram::MultiHistogramRange 2D uses custom stream", "[histogram][device]", CUB_SMALL)
 {
   [[maybe_unused]] constexpr int NUM_CHANNELS        = 4;
   [[maybe_unused]] constexpr int NUM_ACTIVE_CHANNELS = 3;

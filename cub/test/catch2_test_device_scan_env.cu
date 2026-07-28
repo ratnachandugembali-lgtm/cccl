@@ -45,7 +45,7 @@ using block_size_check_t = block_size_extracting_op<cuda::std::plus<>>;
 // ifdef it out not to spend time compiling and running it twice.
 #if TEST_LAUNCH == 0
 
-TEST_CASE("Device scan exclusive scan works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan exclusive scan works with default environment", "[scan][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using value_t     = int;
@@ -74,7 +74,7 @@ TEST_CASE("Device scan exclusive scan works with default environment", "[scan][d
   REQUIRE(d_block_size[0] == static_cast<unsigned int>(target_block_size));
 }
 
-TEST_CASE("Device scan exclusive scan with FutureValue works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan exclusive scan with FutureValue works with default environment", "[scan][device]", CUB_SMALL)
 {
   using num_items_t = int;
 
@@ -93,7 +93,7 @@ TEST_CASE("Device scan exclusive scan with FutureValue works with default enviro
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device scan exclusive sum works with default environment", "[sum][device]")
+CUB_TEST_CASE("Device scan exclusive sum works with default environment", "[sum][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using value_t     = int;
@@ -108,7 +108,7 @@ TEST_CASE("Device scan exclusive sum works with default environment", "[sum][dev
   REQUIRE(d_out[1] == value_t{} + d_in[0]);
 }
 
-TEST_CASE("Device scan inclusive-scan-init works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan inclusive-scan-init works with default environment", "[scan][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using value_t     = int;
@@ -200,7 +200,7 @@ CUB_TEST("Device scan exclusive-sum can be tuned", "[scan][device]", CUB_SMALL, 
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-TEST_CASE("Device scan inclusive sum works with default environment", "[sum][device]")
+CUB_TEST_CASE("Device scan inclusive sum works with default environment", "[sum][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using value_t     = int;
@@ -216,7 +216,7 @@ TEST_CASE("Device scan inclusive sum works with default environment", "[sum][dev
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device scan inclusive-scan works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan inclusive-scan works with default environment", "[scan][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using value_t     = int;
@@ -285,7 +285,7 @@ CUB_TEST("Device scan inclusive-scan-init can be tuned", "[scan][device]", CUB_S
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-TEST_CASE("Device scan exclusive sum in-place works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan exclusive sum in-place works with default environment", "[scan][device]", CUB_SMALL)
 {
   auto d_data = c2h::device_vector<int>{1, 2, 3, 4};
 
@@ -296,7 +296,7 @@ TEST_CASE("Device scan exclusive sum in-place works with default environment", "
   REQUIRE(d_data == expected);
 }
 
-TEST_CASE("Device scan exclusive scan in-place works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan exclusive scan in-place works with default environment", "[scan][device]", CUB_SMALL)
 {
   auto d_data = c2h::device_vector<int>{1, 2, 3, 4};
 
@@ -307,7 +307,7 @@ TEST_CASE("Device scan exclusive scan in-place works with default environment", 
   REQUIRE(d_data == expected);
 }
 
-TEST_CASE("Device scan inclusive sum in-place works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan inclusive sum in-place works with default environment", "[scan][device]", CUB_SMALL)
 {
   auto d_data = c2h::device_vector<int>{1, 2, 3, 4};
 
@@ -318,7 +318,7 @@ TEST_CASE("Device scan inclusive sum in-place works with default environment", "
   REQUIRE(d_data == expected);
 }
 
-TEST_CASE("Device scan inclusive scan in-place works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan inclusive scan in-place works with default environment", "[scan][device]", CUB_SMALL)
 {
   auto d_data = c2h::device_vector<int>{1, 2, 3, 4};
 
@@ -329,7 +329,9 @@ TEST_CASE("Device scan inclusive scan in-place works with default environment", 
   REQUIRE(d_data == expected);
 }
 
-TEST_CASE("Device scan exclusive scan with FutureValue in-place works with default environment", "[scan][device]")
+CUB_TEST_CASE("Device scan exclusive scan with FutureValue in-place works with default environment",
+              "[scan][device]",
+              CUB_SMALL)
 {
   auto d_data = c2h::device_vector<int>{1, 2, 3, 4};
 

@@ -31,7 +31,9 @@ namespace stdexec = cuda::std::execution;
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceSegmentedSort::StableSortPairs works with default environment", "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::StableSortPairs works with default environment",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -57,8 +59,9 @@ TEST_CASE("DeviceSegmentedSort::StableSortPairs works with default environment",
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::StableSortPairsDescending works with default environment",
-          "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::StableSortPairsDescending works with default environment",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -84,7 +87,9 @@ TEST_CASE("DeviceSegmentedSort::StableSortPairsDescending works with default env
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortPairs nonstable works with default environment", "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairs nonstable works with default environment",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -110,8 +115,9 @@ TEST_CASE("DeviceSegmentedSort::SortPairs nonstable works with default environme
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable works with default environment",
-          "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable works with default environment",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -137,8 +143,9 @@ TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable works with default
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer works with default environment",
-          "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer works with default environment",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);
@@ -168,8 +175,9 @@ TEST_CASE("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer works with defa
   REQUIRE(result_values == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer works with default environment",
-          "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer works with default environment",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);
@@ -201,7 +209,9 @@ TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer works
 
 #endif
 
-TEST_CASE("DeviceSegmentedSort::SortPairs nonstable uses custom stream", "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairs nonstable uses custom stream",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -248,7 +258,9 @@ TEST_CASE("DeviceSegmentedSort::SortPairs nonstable uses custom stream", "[segme
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable uses custom stream", "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable uses custom stream",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -295,7 +307,9 @@ TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable uses custom stream
   REQUIRE(values_out == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer uses custom stream", "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer uses custom stream",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);
@@ -343,8 +357,9 @@ TEST_CASE("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer uses custom str
   REQUIRE(result_values == expected_values);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer uses custom stream",
-          "[segmented_sort][pairs][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer uses custom stream",
+              "[segmented_sort][pairs][device]",
+              CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);

@@ -26,7 +26,7 @@ namespace stdexec = cuda::std::execution;
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("Device LowerBoundSortedValues works with default environment", "[find][device][binary-search]")
+CUB_TEST_CASE("Device LowerBoundSortedValues works with default environment", "[find][device][binary-search]", CUB_SMALL)
 {
   auto d_range  = c2h::device_vector<int>{0, 2, 4, 6, 8};
   auto d_values = c2h::device_vector<int>{0, 3, 4, 7};
@@ -45,7 +45,7 @@ TEST_CASE("Device LowerBoundSortedValues works with default environment", "[find
   REQUIRE(d_output == expected);
 }
 
-TEST_CASE("Device UpperBoundSortedValues works with default environment", "[find][device][binary-search]")
+CUB_TEST_CASE("Device UpperBoundSortedValues works with default environment", "[find][device][binary-search]", CUB_SMALL)
 {
   auto d_range  = c2h::device_vector<int>{0, 2, 4, 6, 8};
   auto d_values = c2h::device_vector<int>{0, 3, 4, 7};

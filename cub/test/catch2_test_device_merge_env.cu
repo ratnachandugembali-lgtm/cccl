@@ -42,7 +42,7 @@ using block_sizes =
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceMerge::MergeKeys works with default environment", "[merge][device]")
+CUB_TEST_CASE("DeviceMerge::MergeKeys works with default environment", "[merge][device]", CUB_SMALL)
 {
   auto keys1  = c2h::device_vector<int>{0, 2, 5};
   auto keys2  = c2h::device_vector<int>{0, 3, 3, 4};
@@ -57,7 +57,7 @@ TEST_CASE("DeviceMerge::MergeKeys works with default environment", "[merge][devi
   REQUIRE(result == expected);
 }
 
-TEST_CASE("DeviceMerge::MergePairs works with default environment", "[merge][device]")
+CUB_TEST_CASE("DeviceMerge::MergePairs works with default environment", "[merge][device]", CUB_SMALL)
 {
   auto keys1   = c2h::device_vector<int>{0, 2, 5};
   auto values1 = c2h::device_vector<char>{'a', 'b', 'c'};
@@ -183,7 +183,7 @@ CUB_TEST("DeviceMerge::MergeKeys uses environment", "[merge][device]", CUB_SMALL
   REQUIRE(result == expected);
 }
 
-TEST_CASE("DeviceMerge::MergeKeys uses custom stream", "[merge][device]")
+CUB_TEST_CASE("DeviceMerge::MergeKeys uses custom stream", "[merge][device]", CUB_SMALL)
 {
   auto keys1  = c2h::device_vector<int>{0, 2, 5};
   auto keys2  = c2h::device_vector<int>{0, 3, 3, 4};
@@ -268,7 +268,7 @@ CUB_TEST("DeviceMerge::MergePairs uses environment", "[merge][device]", CUB_SMAL
   REQUIRE(result_values == expected_values);
 }
 
-TEST_CASE("DeviceMerge::MergePairs uses custom stream", "[merge][device]")
+CUB_TEST_CASE("DeviceMerge::MergePairs uses custom stream", "[merge][device]", CUB_SMALL)
 {
   auto keys1   = c2h::device_vector<int>{0, 2, 5};
   auto values1 = c2h::device_vector<char>{'a', 'b', 'c'};
@@ -329,7 +329,7 @@ struct no_unroll_tuning
   }
 };
 
-TEST_CASE("DeviceMerge::MergeKeys works with unroll disabled", "[merge][device]")
+CUB_TEST_CASE("DeviceMerge::MergeKeys works with unroll disabled", "[merge][device]", CUB_SMALL)
 {
   auto keys1  = c2h::device_vector<int>{0, 2, 5};
   auto keys2  = c2h::device_vector<int>{0, 3, 3, 4};
@@ -351,7 +351,7 @@ TEST_CASE("DeviceMerge::MergeKeys works with unroll disabled", "[merge][device]"
   REQUIRE(result == expected);
 }
 
-TEST_CASE("DeviceMerge::MergePairs works with unroll disabled", "[merge][device]")
+CUB_TEST_CASE("DeviceMerge::MergePairs works with unroll disabled", "[merge][device]", CUB_SMALL)
 {
   auto keys1   = c2h::device_vector<int>{0, 2, 5};
   auto values1 = c2h::device_vector<char>{'a', 'b', 'c'};

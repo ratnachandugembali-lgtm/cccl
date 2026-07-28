@@ -40,7 +40,7 @@ namespace stdexec = cuda::std::execution;
 
 using block_size_check_t = block_size_extracting_op<cuda::std::equal_to<>>;
 
-TEST_CASE("Device select works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -64,7 +64,7 @@ TEST_CASE("Device select works with default environment", "[select][device]")
   REQUIRE(d_out == expected_output);
 }
 
-TEST_CASE("Device select flagged works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select flagged works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -88,7 +88,7 @@ TEST_CASE("Device select flagged works with default environment", "[select][devi
   REQUIRE(d_out == expected_output);
 }
 
-TEST_CASE("Device select flagged_if works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select flagged_if works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -113,7 +113,7 @@ TEST_CASE("Device select flagged_if works with default environment", "[select][d
   REQUIRE(d_out == expected_output);
 }
 
-TEST_CASE("Device select flagged in-place works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select flagged in-place works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -134,7 +134,7 @@ TEST_CASE("Device select flagged in-place works with default environment", "[sel
   REQUIRE(d_data == expected_output);
 }
 
-TEST_CASE("Device select if in-place works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select if in-place works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -155,7 +155,7 @@ TEST_CASE("Device select if in-place works with default environment", "[select][
   REQUIRE(d_data == expected_output);
 }
 
-TEST_CASE("Device select flagged_if in-place works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select flagged_if in-place works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -179,7 +179,7 @@ TEST_CASE("Device select flagged_if in-place works with default environment", "[
   REQUIRE(d_data == expected_output);
 }
 
-TEST_CASE("Device select unique works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select unique works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -199,7 +199,9 @@ TEST_CASE("Device select unique works with default environment", "[select][devic
   REQUIRE(d_out == expected_output);
 }
 
-TEST_CASE("Device select unique with custom equality_op works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select unique with custom equality_op works with default environment",
+              "[select][device]",
+              CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -222,7 +224,7 @@ TEST_CASE("Device select unique with custom equality_op works with default envir
   REQUIRE(d_out == expected_output);
 }
 
-TEST_CASE("Device select unique in-place works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select unique in-place works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -241,7 +243,9 @@ TEST_CASE("Device select unique in-place works with default environment", "[sele
   REQUIRE(d_data == expected_output);
 }
 
-TEST_CASE("Device select unique in-place with custom equality_op works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select unique in-place with custom equality_op works with default environment",
+              "[select][device]",
+              CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -262,7 +266,7 @@ TEST_CASE("Device select unique in-place with custom equality_op works with defa
   REQUIRE(d_data == expected_output);
 }
 
-TEST_CASE("Device select unique_by_key works with default environment", "[select][device]")
+CUB_TEST_CASE("Device select unique_by_key works with default environment", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -295,7 +299,9 @@ TEST_CASE("Device select unique_by_key works with default environment", "[select
   REQUIRE(d_values_out == expected_values);
 }
 
-TEST_CASE("Device select unique_by_key works with default environment and explicit env", "[select][device]")
+CUB_TEST_CASE("Device select unique_by_key works with default environment and explicit env",
+              "[select][device]",
+              CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -331,7 +337,7 @@ TEST_CASE("Device select unique_by_key works with default environment and explic
   REQUIRE(d_values_out == expected_values);
 }
 
-TEST_CASE("Device select unique_by_key default tuning chooses target block size", "[select][device]")
+CUB_TEST_CASE("Device select unique_by_key default tuning chooses target block size", "[select][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using key_t       = int;
@@ -789,7 +795,7 @@ CUB_TEST("Device select unique_by_key uses environment without equality_op", "[s
   REQUIRE(d_values_out == expected_values);
 }
 
-TEST_CASE("Device select uses custom stream", "[select][device]")
+CUB_TEST_CASE("Device select uses custom stream", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -827,7 +833,7 @@ TEST_CASE("Device select uses custom stream", "[select][device]")
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("Device select flagged uses custom stream", "[select][device]")
+CUB_TEST_CASE("Device select flagged uses custom stream", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -870,7 +876,7 @@ TEST_CASE("Device select flagged uses custom stream", "[select][device]")
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("Device select flagged_if uses custom stream", "[select][device]")
+CUB_TEST_CASE("Device select flagged_if uses custom stream", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -917,7 +923,7 @@ TEST_CASE("Device select flagged_if uses custom stream", "[select][device]")
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("Device select unique uses custom stream", "[select][device]")
+CUB_TEST_CASE("Device select unique uses custom stream", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -952,7 +958,7 @@ TEST_CASE("Device select unique uses custom stream", "[select][device]")
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("Device select unique in-place uses custom stream", "[select][device]")
+CUB_TEST_CASE("Device select unique in-place uses custom stream", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -986,7 +992,7 @@ TEST_CASE("Device select unique in-place uses custom stream", "[select][device]"
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("Device select unique in-place with custom equality_op uses custom stream", "[select][device]")
+CUB_TEST_CASE("Device select unique in-place with custom equality_op uses custom stream", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -1022,7 +1028,7 @@ TEST_CASE("Device select unique in-place with custom equality_op uses custom str
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("Device select unique_by_key uses custom stream", "[select][device]")
+CUB_TEST_CASE("Device select unique_by_key uses custom stream", "[select][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;

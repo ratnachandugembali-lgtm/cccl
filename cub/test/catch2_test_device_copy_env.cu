@@ -50,7 +50,7 @@ struct get_size
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceCopy::Batched works with default environment", "[copy][device]")
+CUB_TEST_CASE("DeviceCopy::Batched works with default environment", "[copy][device]", CUB_SMALL)
 {
   // 3 ranges: [10, 20], [30, 40, 50], [60]
   auto d_src     = c2h::device_vector<int>{10, 20, 30, 40, 50, 60};
@@ -100,7 +100,7 @@ CUB_TEST("DeviceCopy::Batched uses environment", "[copy][device]", CUB_SMALL)
   REQUIRE(d_dst == d_src);
 }
 
-TEST_CASE("DeviceCopy::Batched uses custom stream", "[copy][device]")
+CUB_TEST_CASE("DeviceCopy::Batched uses custom stream", "[copy][device]", CUB_SMALL)
 {
   // 3 ranges: [10, 20], [30, 40, 50], [60]
   auto d_src     = c2h::device_vector<int>{10, 20, 30, 40, 50, 60};

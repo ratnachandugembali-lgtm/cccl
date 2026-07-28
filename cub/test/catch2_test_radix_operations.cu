@@ -579,7 +579,7 @@ struct flipped_fp_aggregate_decomposer_t
 /**
  * This tests checks radix sort guarantees to treat +0/-0 as the same value.
  */
-TEST_CASE("Radix operations treat -0/+0 as being equal", "[radix][operations]")
+CUB_TEST_CASE("Radix operations treat -0/+0 as being equal", "[radix][operations]", CUB_SMALL)
 {
   using traits            = cub::detail::radix::traits_t<fp_aggregate_t>;
   using conversion_policy = typename traits::bit_ordered_conversion_policy;
@@ -608,7 +608,7 @@ TEST_CASE("Radix operations treat -0/+0 as being equal", "[radix][operations]")
  * This tests checks that radix operations respect the order of fields in the
  * tuple instead of looking at the binary key representation.
  */
-TEST_CASE("Radix operations allow fields permutation", "[radix][operations]")
+CUB_TEST_CASE("Radix operations allow fields permutation", "[radix][operations]", CUB_SMALL)
 {
   using traits            = cub::detail::radix::traits_t<fp_aggregate_t>;
   using conversion_policy = typename traits::bit_ordered_conversion_policy;

@@ -34,7 +34,7 @@ namespace stdexec = cuda::std::execution;
 #if TEST_LAUNCH == 0
 using block_size_check_t = block_size_extracting_op<cuda::std::plus<>>;
 
-TEST_CASE("Device scan exclusive-sum-by-key works with default environment", "[scan][by_key][device]")
+CUB_TEST_CASE("Device scan exclusive-sum-by-key works with default environment", "[scan][by_key][device]", CUB_SMALL)
 {
   auto num_items = 7;
   auto d_keys    = thrust::device_vector<int>{0, 0, 1, 1, 1, 2, 2};
@@ -47,7 +47,7 @@ TEST_CASE("Device scan exclusive-sum-by-key works with default environment", "[s
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device scan exclusive-scan-by-key works with default environment", "[scan][by_key][device]")
+CUB_TEST_CASE("Device scan exclusive-scan-by-key works with default environment", "[scan][by_key][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using key_t       = int;
@@ -81,7 +81,7 @@ TEST_CASE("Device scan exclusive-scan-by-key works with default environment", "[
   REQUIRE(d_block_size[0] == static_cast<unsigned int>(target_block_size));
 }
 
-TEST_CASE("Device scan inclusive-sum-by-key works with default environment", "[scan][by_key][device]")
+CUB_TEST_CASE("Device scan inclusive-sum-by-key works with default environment", "[scan][by_key][device]", CUB_SMALL)
 {
   auto num_items = 7;
   auto d_keys    = thrust::device_vector<int>{0, 0, 1, 1, 1, 2, 2};
@@ -94,7 +94,7 @@ TEST_CASE("Device scan inclusive-sum-by-key works with default environment", "[s
   REQUIRE(d_out == expected);
 }
 
-TEST_CASE("Device scan inclusive-scan-by-key works with default environment", "[scan][by_key][device]")
+CUB_TEST_CASE("Device scan inclusive-scan-by-key works with default environment", "[scan][by_key][device]", CUB_SMALL)
 {
   using num_items_t = int;
   using key_t       = int;

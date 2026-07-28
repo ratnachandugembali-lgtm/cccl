@@ -53,7 +53,7 @@ struct get_size
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceMemcpy::Batched works with default environment", "[memcpy][device]")
+CUB_TEST_CASE("DeviceMemcpy::Batched works with default environment", "[memcpy][device]", CUB_SMALL)
 {
   // 3 buffers: [10, 20], [30, 40, 50], [60]
   auto d_src     = c2h::device_vector<int>{10, 20, 30, 40, 50, 60};
@@ -103,7 +103,7 @@ CUB_TEST("DeviceMemcpy::Batched uses environment", "[memcpy][device]", CUB_SMALL
   REQUIRE(d_dst == d_src);
 }
 
-TEST_CASE("DeviceMemcpy::Batched uses custom stream", "[memcpy][device]")
+CUB_TEST_CASE("DeviceMemcpy::Batched uses custom stream", "[memcpy][device]", CUB_SMALL)
 {
   // 3 buffers: [10, 20], [30, 40, 50], [60]
   auto d_src     = c2h::device_vector<int>{10, 20, 30, 40, 50, 60};

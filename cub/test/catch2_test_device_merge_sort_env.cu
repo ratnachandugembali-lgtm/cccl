@@ -45,7 +45,7 @@ struct merge_sort_tuning
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceMergeSort::SortPairs works with default environment", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::SortPairs works with default environment", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto d_values = c2h::device_vector<int>{0, 1, 2, 3, 4, 5, 6};
@@ -60,7 +60,7 @@ TEST_CASE("DeviceMergeSort::SortPairs works with default environment", "[merge_s
   REQUIRE(d_values == expected_values);
 }
 
-TEST_CASE("DeviceMergeSort::SortKeys works with default environment", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::SortKeys works with default environment", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
 
@@ -72,7 +72,7 @@ TEST_CASE("DeviceMergeSort::SortKeys works with default environment", "[merge_so
   REQUIRE(d_keys == expected_keys);
 }
 
-TEST_CASE("DeviceMergeSort::StableSortPairs works with default environment", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::StableSortPairs works with default environment", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys   = c2h::device_vector<int>{8, 6, 6, 5, 3, 0, 9};
   auto d_values = c2h::device_vector<int>{0, 1, 2, 3, 4, 5, 6};
@@ -87,7 +87,7 @@ TEST_CASE("DeviceMergeSort::StableSortPairs works with default environment", "[m
   REQUIRE(d_values == expected_values);
 }
 
-TEST_CASE("DeviceMergeSort::StableSortKeys works with default environment", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::StableSortKeys works with default environment", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
 
@@ -99,7 +99,7 @@ TEST_CASE("DeviceMergeSort::StableSortKeys works with default environment", "[me
   REQUIRE(d_keys == expected_keys);
 }
 
-TEST_CASE("DeviceMergeSort::SortPairsCopy works with default environment", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::SortPairsCopy works with default environment", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto d_values_in  = c2h::device_vector<int>{0, 1, 2, 3, 4, 5, 6};
@@ -122,7 +122,7 @@ TEST_CASE("DeviceMergeSort::SortPairsCopy works with default environment", "[mer
   REQUIRE(d_values_out == expected_values);
 }
 
-TEST_CASE("DeviceMergeSort::SortKeysCopy works with default environment", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::SortKeysCopy works with default environment", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto d_keys_out = c2h::device_vector<int>(7);
@@ -136,7 +136,7 @@ TEST_CASE("DeviceMergeSort::SortKeysCopy works with default environment", "[merg
   REQUIRE(d_keys_out == expected_keys);
 }
 
-TEST_CASE("DeviceMergeSort::StableSortKeysCopy works with default environment", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::StableSortKeysCopy works with default environment", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto d_keys_out = c2h::device_vector<int>(7);
@@ -242,7 +242,7 @@ CUB_TEST("DeviceMergeSort::StableSortKeys uses environment", "[merge_sort][devic
   REQUIRE(d_keys == expected_keys);
 }
 
-TEST_CASE("DeviceMergeSort::SortPairs uses custom stream", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::SortPairs uses custom stream", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto d_values = c2h::device_vector<int>{0, 1, 2, 3, 4, 5, 6};
@@ -276,7 +276,7 @@ TEST_CASE("DeviceMergeSort::SortPairs uses custom stream", "[merge_sort][device]
   REQUIRE(cudaSuccess == cudaStreamDestroy(custom_stream));
 }
 
-TEST_CASE("DeviceMergeSort::StableSortKeys uses custom stream", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::StableSortKeys uses custom stream", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
 
@@ -388,7 +388,7 @@ CUB_TEST("DeviceMergeSort::StableSortKeysCopy uses environment", "[merge_sort][d
   REQUIRE(d_keys_out == expected_keys);
 }
 
-TEST_CASE("DeviceMergeSort::SortKeysCopy uses custom stream", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::SortKeysCopy uses custom stream", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto d_keys_out = c2h::device_vector<int>(7);
@@ -418,7 +418,7 @@ TEST_CASE("DeviceMergeSort::SortKeysCopy uses custom stream", "[merge_sort][devi
   REQUIRE(d_keys_out == expected_keys);
 }
 
-TEST_CASE("DeviceMergeSort::StableSortKeysCopy uses custom stream", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::StableSortKeysCopy uses custom stream", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto d_keys_out = c2h::device_vector<int>(7);
@@ -566,7 +566,7 @@ struct no_unroll_tuning
   }
 };
 
-TEST_CASE("DeviceMergeSort::SortKeys works with unroll disabled", "[merge_sort][device]")
+CUB_TEST_CASE("DeviceMergeSort::SortKeys works with unroll disabled", "[merge_sort][device]", CUB_SMALL)
 {
   auto d_keys = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto env    = cuda::execution::tune(no_unroll_tuning{});

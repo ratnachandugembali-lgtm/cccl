@@ -30,7 +30,9 @@ namespace stdexec = cuda::std::execution;
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceSegmentedSort::SortKeys works with default environment", "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortKeys works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -50,7 +52,9 @@ TEST_CASE("DeviceSegmentedSort::SortKeys works with default environment", "[segm
   REQUIRE(keys_out == expected);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortKeysDescending works with default environment", "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortKeysDescending works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -70,7 +74,9 @@ TEST_CASE("DeviceSegmentedSort::SortKeysDescending works with default environmen
   REQUIRE(keys_out == expected);
 }
 
-TEST_CASE("DeviceSegmentedSort::StableSortKeys works with default environment", "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::StableSortKeys works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -90,8 +96,9 @@ TEST_CASE("DeviceSegmentedSort::StableSortKeys works with default environment", 
   REQUIRE(keys_out == expected);
 }
 
-TEST_CASE("DeviceSegmentedSort::StableSortKeysDescending works with default environment",
-          "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::StableSortKeysDescending works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -111,7 +118,9 @@ TEST_CASE("DeviceSegmentedSort::StableSortKeysDescending works with default envi
   REQUIRE(keys_out == expected);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortKeys DoubleBuffer works with default environment", "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortKeys DoubleBuffer works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_buf0 = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1 = c2h::device_vector<int>(7);
@@ -132,8 +141,9 @@ TEST_CASE("DeviceSegmentedSort::SortKeys DoubleBuffer works with default environ
   REQUIRE(result == expected);
 }
 
-TEST_CASE("DeviceSegmentedSort::SortKeysDescending DoubleBuffer works with default environment",
-          "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::SortKeysDescending DoubleBuffer works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_buf0 = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1 = c2h::device_vector<int>(7);
@@ -154,8 +164,9 @@ TEST_CASE("DeviceSegmentedSort::SortKeysDescending DoubleBuffer works with defau
   REQUIRE(result == expected);
 }
 
-TEST_CASE("DeviceSegmentedSort::StableSortKeys DoubleBuffer works with default environment",
-          "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::StableSortKeys DoubleBuffer works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_buf0 = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1 = c2h::device_vector<int>(7);
@@ -176,8 +187,9 @@ TEST_CASE("DeviceSegmentedSort::StableSortKeys DoubleBuffer works with default e
   REQUIRE(result == expected);
 }
 
-TEST_CASE("DeviceSegmentedSort::StableSortKeysDescending DoubleBuffer works with default environment",
-          "[segmented_sort][keys][device]")
+CUB_TEST_CASE("DeviceSegmentedSort::StableSortKeysDescending DoubleBuffer works with default environment",
+              "[segmented_sort][keys][device]",
+              CUB_SMALL)
 {
   auto keys_buf0 = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1 = c2h::device_vector<int>(7);

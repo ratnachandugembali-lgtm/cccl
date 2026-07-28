@@ -53,7 +53,7 @@ using block_sizes =
 
 #if TEST_LAUNCH == 0
 
-TEST_CASE("DeviceRunLengthEncode::Encode works with default environment", "[run_length_encode][device]")
+CUB_TEST_CASE("DeviceRunLengthEncode::Encode works with default environment", "[run_length_encode][device]", CUB_SMALL)
 {
   auto d_in           = c2h::device_vector<int>{0, 2, 2, 9, 5, 5, 5, 8};
   auto d_unique_out   = c2h::device_vector<int>(8);
@@ -75,7 +75,9 @@ TEST_CASE("DeviceRunLengthEncode::Encode works with default environment", "[run_
   REQUIRE(d_counts_out == expected_counts);
 }
 
-TEST_CASE("DeviceRunLengthEncode::NonTrivialRuns works with default environment", "[run_length_encode][device]")
+CUB_TEST_CASE("DeviceRunLengthEncode::NonTrivialRuns works with default environment",
+              "[run_length_encode][device]",
+              CUB_SMALL)
 {
   auto d_in           = c2h::device_vector<int>{0, 2, 2, 9, 5, 5, 5, 8};
   auto d_offsets_out  = c2h::device_vector<int>(8);
@@ -171,7 +173,7 @@ CUB_TEST("DeviceRunLengthEncode::NonTrivialRuns uses environment", "[run_length_
   REQUIRE(d_lengths_out == expected_lengths);
 }
 
-TEST_CASE("DeviceRunLengthEncode::Encode uses custom stream", "[run_length_encode][device]")
+CUB_TEST_CASE("DeviceRunLengthEncode::Encode uses custom stream", "[run_length_encode][device]", CUB_SMALL)
 {
   auto d_in           = c2h::device_vector<int>{0, 2, 2, 9, 5, 5, 5, 8};
   auto d_unique_out   = c2h::device_vector<int>(8);
@@ -213,7 +215,7 @@ TEST_CASE("DeviceRunLengthEncode::Encode uses custom stream", "[run_length_encod
   REQUIRE(d_counts_out == expected_counts);
 }
 
-TEST_CASE("DeviceRunLengthEncode::NonTrivialRuns uses custom stream", "[run_length_encode][device]")
+CUB_TEST_CASE("DeviceRunLengthEncode::NonTrivialRuns uses custom stream", "[run_length_encode][device]", CUB_SMALL)
 {
   auto d_in           = c2h::device_vector<int>{0, 2, 2, 9, 5, 5, 5, 8};
   auto d_offsets_out  = c2h::device_vector<int>(8);
