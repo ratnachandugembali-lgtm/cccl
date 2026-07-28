@@ -16,7 +16,7 @@
 #include <algorithm>
 
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <typename PredOpT>
 struct predicate_op_wrapper_t

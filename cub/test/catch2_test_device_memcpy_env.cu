@@ -27,7 +27,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceMemcpy::Batched, device_memcpy_batched);
 
 #include <cuda/__execution/require.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 

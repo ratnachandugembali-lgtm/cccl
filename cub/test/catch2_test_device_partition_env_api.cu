@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include "catch2_test_device_select_common.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <typename T>
 struct greater_than_t

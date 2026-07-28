@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceMemcpy::Batched accepts env with stream", "[memcpy][env]", CUB_SMALL)
 {

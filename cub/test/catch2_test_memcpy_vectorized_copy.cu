@@ -8,7 +8,7 @@
 #include <thrust/fill.h>
 #include <thrust/sequence.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int LocigalWarpSize, typename VectorT, typename ByteOffsetT>
 __global__ void test_vectorized_copy_kernel(const void* d_in, void* d_out, ByteOffsetT copy_size)

@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceSegmentedSort::StableSortPairs env-based API", "[segmented_sort][pairs][env]", CUB_SMALL)
 {

@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceSegmentedScan::ExclusiveSegmentedSum accepts stream", "[segmented_scan][env]", CUB_SMALL)
 {

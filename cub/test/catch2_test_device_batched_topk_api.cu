@@ -18,7 +18,7 @@
 #include <cuda/std/__execution/env.h>
 #include <cuda/std/functional>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceBatchedTopK::MaxKeys temp-storage API example", "[batched_topk][device]", CUB_SMALL)
 {

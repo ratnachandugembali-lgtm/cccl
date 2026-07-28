@@ -20,7 +20,7 @@
 #include <cuda/std/functional>
 #include <cuda/stream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceBatchedTopK::MaxKeys env-alloc example", "[batched_topk][device][env]", CUB_SMALL)
 {

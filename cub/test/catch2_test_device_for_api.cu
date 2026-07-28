@@ -13,7 +13,7 @@
 #include <cuda/iterator>
 #include <cuda/std/tuple>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // example-begin bulk-square-t
 struct square_t

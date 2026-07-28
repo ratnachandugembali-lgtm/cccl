@@ -14,7 +14,7 @@
 
 #include <algorithm>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int BlockDimX, int BlockDimY, int BlockDimZ, int ItemsPerThread, class T, class ActionT>
 __global__ void block_shuffle_kernel(T* data, ActionT action)

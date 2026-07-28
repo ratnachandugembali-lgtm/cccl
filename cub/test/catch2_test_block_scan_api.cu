@@ -9,7 +9,7 @@
 
 #include <cuda/std/numeric>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 constexpr int num_items_per_thread = 2;
 constexpr int block_num_threads    = 64;

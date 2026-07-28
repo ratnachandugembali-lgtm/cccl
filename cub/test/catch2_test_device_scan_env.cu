@@ -34,7 +34,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceScan::InclusiveScanInit, device_scan_inclusive
 #include <cuda/__execution/determinism.h>
 #include <cuda/__execution/require.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 

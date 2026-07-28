@@ -18,7 +18,7 @@
 #include "catch2_radix_sort_helper.cuh"
 #include "catch2_test_device_topk_common.cuh"
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include "cuda/__iterator/tabulate_output_iterator.h"
 #include <c2h/extended_types.h>
 

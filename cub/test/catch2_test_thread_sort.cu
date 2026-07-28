@@ -8,8 +8,8 @@
 #include <thrust/shuffle.h>
 #include <thrust/sort.h>
 
-#include "catch2_test_macros.h"
 #include "cub/thread/thread_sort.cuh"
+#include "cub_test_macros.h"
 
 struct CustomLess
 {

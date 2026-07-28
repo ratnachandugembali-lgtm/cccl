@@ -10,7 +10,7 @@
 #  include <format>
 #endif // __cpp_lib_format >= 201907L
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 struct OStreamOperatorTester
 {

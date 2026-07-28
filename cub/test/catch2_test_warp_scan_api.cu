@@ -12,7 +12,7 @@
 #include <cuda/std/__numeric/inclusive_scan.h>
 #include <cuda/std/__numeric/iota.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 constexpr int num_warps = 4;
 

@@ -11,7 +11,7 @@
 
 #include <thrust/detail/raw_pointer_cast.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 using namespace cub;
 

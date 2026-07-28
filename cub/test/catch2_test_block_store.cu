@@ -6,7 +6,7 @@
 #include <cub/util_allocator.cuh>
 #include <cub/util_arch.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int ItemsPerThread, int ThreadsInBlock, cub::BlockStoreAlgorithm /* StoreAlgorithm */>
 struct output_idx

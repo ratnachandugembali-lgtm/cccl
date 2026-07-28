@@ -17,7 +17,7 @@
 
 #include "catch2_test_device_select_common.cuh"
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <class T, class FlagT>
 static c2h::host_vector<T> get_reference(const c2h::device_vector<T>& in, const c2h::device_vector<FlagT>& flags)

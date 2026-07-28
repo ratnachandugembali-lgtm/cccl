@@ -13,7 +13,7 @@
 #include <cuda/std/array>
 #include <cuda/std/type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 using namespace cub;
 

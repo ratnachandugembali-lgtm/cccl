@@ -8,7 +8,7 @@
 #include <cuda/std/limits>
 #include <cuda/std/type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/custom_type.h>
 
 template <int LOGICAL_WARP_THREADS, int TOTAL_WARPS, typename T, typename ActionT>

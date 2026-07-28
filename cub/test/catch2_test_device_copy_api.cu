@@ -7,7 +7,7 @@
 
 #include <cuda/std/cstdint>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // Guard: the legacy memory-size query call with all defaults (no explicit stream)
 // must resolve unambiguously to the legacy temp-storage overload when the env

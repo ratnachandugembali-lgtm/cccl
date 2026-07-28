@@ -23,7 +23,7 @@
 
 #include "catch2_test_device_select_common.cuh"
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 DECLARE_LAUNCH_WRAPPER(cub::DeviceSelect::If, select_if);
 

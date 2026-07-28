@@ -7,7 +7,7 @@
 
 #include <thrust/sequence.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/fill_striped.h>
 
 template <cub::WarpLoadAlgorithm LoadAlgorithm,

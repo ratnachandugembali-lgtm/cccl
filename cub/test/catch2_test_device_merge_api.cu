@@ -8,7 +8,7 @@
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("DeviceMerge::MergeKeys API example", "[merge][device]", CUB_SMALL)
 {

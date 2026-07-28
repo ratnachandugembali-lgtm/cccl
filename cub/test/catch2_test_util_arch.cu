@@ -3,7 +3,7 @@
 
 #include <cub/util_arch.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <auto V>
 struct show;

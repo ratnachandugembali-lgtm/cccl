@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 #if _CCCL_STD_VER >= 2020
 

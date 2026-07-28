@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceCopy::Batched accepts env with stream", "[copy][env]", CUB_SMALL)
 {

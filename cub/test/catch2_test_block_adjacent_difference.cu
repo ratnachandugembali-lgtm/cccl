@@ -3,7 +3,7 @@
 
 #include <cub/block/block_adjacent_difference.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int ThreadsInBlock, int ItemsPerThread, class T, class ActionT>
 __global__ void block_adj_diff_kernel(T* data, ActionT action, bool in_place)

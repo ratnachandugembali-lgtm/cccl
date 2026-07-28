@@ -8,8 +8,8 @@
 #include <cuda/std/__algorithm/clamp.h>
 #include <cuda/std/limits>
 
-#include "catch2_test_macros.h"
 #include "catch2_test_warp_scan_partial_helper.cuh"
+#include "cub_test_macros.h"
 #include "thread_reduce/catch2_test_thread_reduce_helper.cuh"
 
 using invalid_types        = c2h::type_list<segment>;

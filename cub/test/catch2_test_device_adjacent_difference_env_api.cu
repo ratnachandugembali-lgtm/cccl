@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceAdjacentDifference::SubtractLeftCopy accepts stream", "[adjacent_difference][env]", CUB_SMALL)
 {

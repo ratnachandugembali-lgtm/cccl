@@ -5,7 +5,7 @@
 
 #include <cuda/std/type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("Tests safe_add_bound_to_max", "[util][math]", CUB_SMALL)
 {

@@ -6,8 +6,8 @@
 #include <utility>
 
 #include "catch2_test_block_radix_sort.cuh"
-#include "catch2_test_macros.h"
 #include "cub/block/radix_rank_sort_operations.cuh"
+#include "cub_test_macros.h"
 
 // example-begin custom-type
 struct custom_t

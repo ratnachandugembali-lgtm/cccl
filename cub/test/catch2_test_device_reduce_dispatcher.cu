@@ -14,7 +14,7 @@
 #include <cstdint>
 
 #include "catch2_test_device_reduce.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 using value_types = c2h::type_list<std::int8_t, std::int16_t, std::int32_t, std::int64_t, float, double>;
 

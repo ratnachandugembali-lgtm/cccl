@@ -7,7 +7,7 @@
 
 #include <cuda/std/array>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceHistogram::HistogramEven non-env overload is not ambiguous", "[histogram][device]", CUB_SMALL)
 {

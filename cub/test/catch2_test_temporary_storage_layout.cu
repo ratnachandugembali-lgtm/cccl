@@ -7,8 +7,8 @@
 
 #include <memory>
 
-#include "catch2_test_macros.h"
 #include "cub/detail/temporary_storage.cuh"
+#include "cub_test_macros.h"
 
 using num_storage_slots = c2h::enum_type_list<int, 1, 4, 42>;
 

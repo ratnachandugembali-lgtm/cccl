@@ -7,7 +7,7 @@
 
 #include <cuda/cmath>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int LOGICAL_WARP_THREADS, int TOTAL_WARPS, class T, class ActionT>
 __global__ void warp_combine_scan_kernel(T* in, T* inclusive_out, T* exclusive_out, ActionT action)

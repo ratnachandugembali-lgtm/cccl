@@ -14,7 +14,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // example-begin bulk-square-env-t
 struct square_t

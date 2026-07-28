@@ -6,7 +6,7 @@
 #include <cub/device/device_transform.cuh>
 
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/test_util_vec.h>
 
 // %PARAM% TEST_LAUNCH lid 0:1:2

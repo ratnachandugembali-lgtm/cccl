@@ -8,7 +8,7 @@
 #include <utility>
 
 #include "catch2_test_block_radix_sort.cuh"
-#include "catch2_test_macros.h" // _CCCL_HAS_NVFP8()
+#include "cub_test_macros.h" // _CCCL_HAS_NVFP8()
 
 // %PARAM% TEST_MEMOIZE mem 0:1
 // %PARAM% TEST_ALGORITHM alg 0:1

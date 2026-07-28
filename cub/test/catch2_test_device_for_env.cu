@@ -14,7 +14,7 @@
 
 #include <sstream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 struct square_ref_op
 {

@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // example-begin find-if-predicate
 struct is_greater_than_t

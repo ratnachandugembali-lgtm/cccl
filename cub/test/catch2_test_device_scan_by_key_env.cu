@@ -27,7 +27,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceScan::InclusiveScanByKey, device_scan_inclusiv
 
 // %PARAM% TEST_LAUNCH lid 0:1:2
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 

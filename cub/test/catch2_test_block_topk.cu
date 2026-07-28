@@ -16,7 +16,7 @@
 #include <cmath>
 
 #include "catch2_test_block_topk_common.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 namespace
 {

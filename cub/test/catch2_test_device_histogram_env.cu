@@ -37,7 +37,7 @@ DECLARE_TMPL_LAUNCH_WRAPPER(cub::DeviceHistogram::MultiHistogramRange,
 #include <cuda/__execution/require.h>
 #include <cuda/__execution/tune.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 

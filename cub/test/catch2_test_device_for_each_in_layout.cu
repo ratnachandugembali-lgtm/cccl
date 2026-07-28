@@ -13,7 +13,7 @@
 #include <cuda/std/mdspan>
 #include <cuda/std/span>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/utility.h>
 #include <catch2_test_launch_helper.h>
 

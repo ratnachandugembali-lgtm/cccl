@@ -14,7 +14,7 @@
 #include <iostream>
 
 #include "catch2_test_device_select_common.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceSelect::If accepts env with stream", "[select][env]", CUB_SMALL)
 {

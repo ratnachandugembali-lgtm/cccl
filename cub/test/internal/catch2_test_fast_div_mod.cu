@@ -3,7 +3,7 @@
 #include <cub/config.cuh>
 
 #include "c2h/utility.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 /***********************************************************************************************************************
  * TEST CASES

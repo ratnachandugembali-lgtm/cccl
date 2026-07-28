@@ -13,7 +13,7 @@
 #include <cuda/std/array>
 
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_NAMESPACE_BEGIN
 

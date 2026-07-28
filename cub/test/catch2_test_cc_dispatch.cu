@@ -5,7 +5,7 @@
 
 #include <cuda/std/__algorithm/find_if.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 using cuda::compute_capability;
 

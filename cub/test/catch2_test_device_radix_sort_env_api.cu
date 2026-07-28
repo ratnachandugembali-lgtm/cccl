@@ -15,7 +15,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // example-begin radix-sort-keys-custom-decomposer
 struct custom_key_t

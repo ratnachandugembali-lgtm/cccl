@@ -7,7 +7,7 @@
 #include <cuda/std/limits>
 #include <cuda/std/type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("Tests choose_offset", "[util][type]", CUB_SMALL)
 {

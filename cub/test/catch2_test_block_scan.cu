@@ -5,7 +5,7 @@
 
 #include <climits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <cub::BlockScanAlgorithm Algorithm,
           int ItemsPerThread,

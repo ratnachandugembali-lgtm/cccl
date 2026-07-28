@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceMerge::MergeKeys accepts env with stream", "[merge][env]", CUB_SMALL)
 {

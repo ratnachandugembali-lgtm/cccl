@@ -10,7 +10,7 @@
 #include <limits>
 #include <type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <typename KeyT>
 struct fundamental_extractor_t

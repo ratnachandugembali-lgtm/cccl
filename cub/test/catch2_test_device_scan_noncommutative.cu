@@ -3,7 +3,7 @@
 
 #include <cub/device/device_scan.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <catch2_test_device_scan.cuh>
 
 /* Consider free monoid with two generators, ``q`` and ``p``, modulo defining relationship (``p * q == 1``).

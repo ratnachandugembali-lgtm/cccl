@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // Simple user-defined key type for the decomposer-based examples.
 struct topk_custom_t

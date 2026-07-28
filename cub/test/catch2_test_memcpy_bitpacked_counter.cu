@@ -5,7 +5,7 @@
 
 #include <thrust/fill.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <std::uint32_t NumItems,
           std::uint32_t MaxItemValue,

@@ -5,7 +5,7 @@
 
 #include <cub/device/device_scan.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <class ScanTileStateT>
 __global__ void init_kernel(ScanTileStateT tile_state, int blocks_in_grid)

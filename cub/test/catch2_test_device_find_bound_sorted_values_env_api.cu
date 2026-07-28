@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceFind::LowerBoundSortedValues accepts env with stream", "[find][env][binary-search]", CUB_SMALL)
 {

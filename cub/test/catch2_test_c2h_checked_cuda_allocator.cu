@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <new> // std::bad_alloc
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 std::size_t get_alloc_bytes()
 {

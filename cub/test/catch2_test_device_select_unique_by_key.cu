@@ -12,7 +12,7 @@
 #include <algorithm>
 
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <class T>
 inline T to_bound(const unsigned long long bound)

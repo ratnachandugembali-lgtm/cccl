@@ -14,7 +14,7 @@
 #include <cuda/devices>
 #include <cuda/stream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceSegmentedReduce::Sum accepts env with stream and determinism requirements",
          "[segmented_reduce][env]",

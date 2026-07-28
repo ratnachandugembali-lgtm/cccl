@@ -6,7 +6,7 @@
 
 #include <cuda/__cmath/pow2.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int logical_warp_threads>
 struct total_warps_t

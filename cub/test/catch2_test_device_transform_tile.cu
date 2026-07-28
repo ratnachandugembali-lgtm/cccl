@@ -5,7 +5,7 @@
 
 #include <cub/device/device_transform.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // The tile dispatch path only exists when nvcc is invoked with --enable-tile and the user opts in via
 // CCCL_ENABLE_EXPERIMENTAL_TILE_TRANSFORM_DISPATCH. In any other build this file compiles to a single skipped test.

@@ -21,7 +21,7 @@ _CCCL_SUPPRESS_DEPRECATED_NVRTC_DIAG
 
 #include <cstdint>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // %PARAM% TEST_VEC_SIZE types 1:2:3:4
 

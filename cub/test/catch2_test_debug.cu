@@ -1,7 +1,7 @@
 #include <cub/util_debug.cuh>
 #include <cub/util_device.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST_CASE("CubDebug returns input error", "[debug][utils]", CUB_SMALL)
 {

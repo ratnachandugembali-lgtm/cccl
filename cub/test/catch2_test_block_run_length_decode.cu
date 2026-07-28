@@ -13,7 +13,7 @@
 #include <cuda/iterator>
 #include <cuda/std/type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 /******************************************************************************
  * HELPER CLASS FOR RUN-LENGTH DECODING TESTS

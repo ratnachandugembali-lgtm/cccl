@@ -11,7 +11,7 @@
 #include <cub/device/device_radix_sort.cuh>
 
 #include "catch2_radix_sort_helper.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 using namespace cub;
 

@@ -3,7 +3,7 @@
 
 #include <cub/thread/thread_operators.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include "test_util.h"
 
 template <class T>

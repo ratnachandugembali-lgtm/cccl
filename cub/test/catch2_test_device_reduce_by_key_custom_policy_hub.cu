@@ -11,7 +11,7 @@
 
 #include <cuda/std/functional>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 using namespace cub;
 

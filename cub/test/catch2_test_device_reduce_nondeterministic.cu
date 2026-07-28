@@ -18,7 +18,7 @@
 #include <numeric>
 
 #include "catch2_test_device_reduce.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/generators.h>
 
 using float_type_list =

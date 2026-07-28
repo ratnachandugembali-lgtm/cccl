@@ -11,7 +11,7 @@
 
 #include "catch2_test_device_reduce.cuh"
 #include "catch2_test_device_scan.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include "thread_reduce/catch2_test_thread_reduce_helper.cuh"
 #include <c2h/extended_types.h>
 #include <c2h/generators.h>

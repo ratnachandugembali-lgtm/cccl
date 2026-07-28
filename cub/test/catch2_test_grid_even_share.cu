@@ -7,7 +7,7 @@
 #include <cuda/std/__algorithm/min.h>
 #include <cuda/std/type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/generators.h>
 
 using offset_types = c2h::type_list<std::int32_t, std::int64_t, std::uint32_t, std::uint64_t>;

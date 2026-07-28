@@ -13,7 +13,7 @@
 #include <limits>
 #include <string>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int BINS,
           int BLOCK_THREADS,

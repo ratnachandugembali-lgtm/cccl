@@ -7,8 +7,8 @@
 #include <cuda/functional>
 #include <cuda/std/limits>
 
-#include "catch2_test_macros.h"
 #include "catch2_test_warp_scan_partial_helper.cuh"
+#include "cub_test_macros.h"
 
 using types                = c2h::type_list<std::uint8_t, std::uint16_t, std::int32_t, std::int64_t>;
 using logical_warp_threads = c2h::enum_type_list<int, 32, 16, 9, 2>;

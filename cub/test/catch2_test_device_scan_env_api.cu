@@ -15,7 +15,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceScan::ExclusiveScan accepts run_to_run determinism requirements", "[scan][env]", CUB_SMALL)
 {

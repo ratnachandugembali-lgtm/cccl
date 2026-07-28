@@ -8,7 +8,7 @@
 
 #include <cuda/std/mdspan>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 void check_status(cudaError_t status)
 {

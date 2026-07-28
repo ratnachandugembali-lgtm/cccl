@@ -27,7 +27,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceSegmentedReduce::ArgMax, device_segmented_redu
 
 #include <cuda/__execution/require.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 

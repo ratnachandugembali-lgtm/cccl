@@ -8,7 +8,7 @@
 
 #include <cuda/iterator>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // need a separate function because the ext. lambda needs to be enclosed by a function with external linkage on Windows
 void test_transform_many_many_api()

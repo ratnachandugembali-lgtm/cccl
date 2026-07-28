@@ -5,7 +5,7 @@
 #include <cub/util_arch.cuh>
 #include <cub/warp/warp_store.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/fill_striped.h>
 
 template <cub::WarpStoreAlgorithm StoreAlgorithm,

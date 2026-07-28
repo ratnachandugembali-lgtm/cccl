@@ -14,7 +14,7 @@
 #include <cuda/std/functional>
 #include <cuda/stream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("DeviceTopK::MinKeys API example for non-deterministic, unsorted results",
          "[device][device_transform]",

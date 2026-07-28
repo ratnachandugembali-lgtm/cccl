@@ -9,7 +9,7 @@
 
 #include "catch2_test_device_reduce.cuh"
 #include "catch2_test_launch_helper.h"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // only lid 0 is enabled, as this test only tests max_segment_size functionality through dispatch directly
 

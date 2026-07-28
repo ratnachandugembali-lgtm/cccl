@@ -6,7 +6,7 @@
 #include <cub/util_allocator.cuh>
 #include <cub/util_arch.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <int ItemsPerThread, int ThreadsInBlock, cub::BlockLoadAlgorithm LoadAlgorithm>
 static __device__ int get_output_idx(int item)

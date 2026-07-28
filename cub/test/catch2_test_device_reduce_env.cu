@@ -33,7 +33,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceReduce::ArgMax, device_arg_max);
 
 #include <sstream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 using cuda::execution::determinism::__determinism_t;

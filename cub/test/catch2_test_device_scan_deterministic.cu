@@ -10,7 +10,7 @@
 #include <cuda/std/functional>
 
 #include "catch2_test_device_scan.cuh"
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/generators.h>
 
 using float_type_list = c2h::type_list<float, double>;

@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceScan::ExclusiveSumByKey accepts stream environment", "[scan][by_key][env]", CUB_SMALL)
 {

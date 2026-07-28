@@ -5,7 +5,7 @@
 
 #include <thrust/device_vector.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceMergeSort::SortPairs non-env overload is not ambiguous", "[merge_sort][device]", CUB_SMALL)
 {

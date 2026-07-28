@@ -11,7 +11,7 @@
 #include <cuda/std/array>
 #include <cuda/std/span>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 __global__ __launch_bounds__(64) void WarpReduceBatchedOverviewKernel(int* out)
 {

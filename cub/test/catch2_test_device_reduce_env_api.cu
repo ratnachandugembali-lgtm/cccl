@@ -14,8 +14,8 @@
 #include <cuda/std/__execution/env.h>
 #include <cuda/stream>
 
-#include "catch2_test_macros.h"
 #include "catch2_test_memory_resources.h"
+#include "cub_test_macros.h"
 
 CUB_TEST("cub::DeviceReduce::Reduce accepts run_to_run determinism requirements", "[reduce][env]", CUB_SMALL)
 {

@@ -6,7 +6,7 @@
 #include <limits>
 #include <numeric>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <cub::BlockReduceAlgorithm Algorithm,
           int ItemsPerThread,

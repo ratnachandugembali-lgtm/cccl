@@ -5,7 +5,7 @@
 
 #include <cub/device/device_adjacent_difference.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // Guard: the legacy memory-size query call with all defaults (no explicit difference_op,
 // no explicit stream) must resolve unambiguously to the legacy temp-storage overload

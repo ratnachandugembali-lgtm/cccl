@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // example-begin segmented-select-iseven
 struct is_even_t

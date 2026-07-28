@@ -14,7 +14,7 @@
 #include <climits>
 #include <cstddef>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include "thrust/detail/raw_pointer_cast.h"
 
 // example-begin segmented-reduce-custommin

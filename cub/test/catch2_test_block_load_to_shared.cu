@@ -10,7 +10,7 @@
 #include <cuda/cmath>
 #include <cuda/std/type_traits>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 enum struct test_mode
 {

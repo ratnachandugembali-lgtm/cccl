@@ -19,7 +19,7 @@
 
 #include <test_util.h>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 #include <c2h/check_results.cuh>
 #include <c2h/custom_type.h>
 #include <c2h/operator.cuh>

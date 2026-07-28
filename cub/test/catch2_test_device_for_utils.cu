@@ -5,7 +5,7 @@
 
 #include <cub/device/device_for.cuh>
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 template <class T>
 struct value_t

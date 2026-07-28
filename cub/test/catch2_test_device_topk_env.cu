@@ -27,7 +27,7 @@ struct stream_registry_factory_t;
 
 // %PARAM% TEST_LAUNCH lid 0:2
 
-#include "catch2_test_macros.h"
+#include "cub_test_macros.h"
 
 // TODO(bgruber): the tests below should be refactored to call an env-overload that uses a memory resource to allocate
 // temporary storage
