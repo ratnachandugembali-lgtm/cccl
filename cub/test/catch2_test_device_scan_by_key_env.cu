@@ -27,7 +27,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceScan::InclusiveScanByKey, device_scan_inclusiv
 
 // %PARAM% TEST_LAUNCH lid 0:1:2
 
-#include <c2h/catch2_test_helper.h>
+#include "catch2_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 
@@ -150,7 +150,7 @@ using block_sizes =
 using block_size_extracting_scan_op_t  = block_size_extracting_op<cuda::std::plus<>>;
 using block_size_extracting_equality_t = block_size_extracting_op<cuda::std::equal_to<>>;
 
-C2H_TEST("DeviceScan::ExclusiveSumByKey can be tuned", "[scan][by_key][device]", block_sizes)
+CUB_TEST("DeviceScan::ExclusiveSumByKey can be tuned", "[scan][by_key][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   c2h::device_vector<int> d_keys{0, 0, 1, 1, 1, 2, 2};
@@ -168,7 +168,7 @@ C2H_TEST("DeviceScan::ExclusiveSumByKey can be tuned", "[scan][by_key][device]",
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceScan::ExclusiveScanByKey can be tuned", "[scan][by_key][device]", block_sizes)
+CUB_TEST("DeviceScan::ExclusiveScanByKey can be tuned", "[scan][by_key][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   c2h::device_vector<int> d_keys{0, 0, 1, 1, 1, 2, 2};
@@ -187,7 +187,7 @@ C2H_TEST("DeviceScan::ExclusiveScanByKey can be tuned", "[scan][by_key][device]"
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceScan::InclusiveSumByKey can be tuned", "[scan][by_key][device]", block_sizes)
+CUB_TEST("DeviceScan::InclusiveSumByKey can be tuned", "[scan][by_key][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   c2h::device_vector<int> d_keys{0, 0, 1, 1, 1, 2, 2};
@@ -205,7 +205,7 @@ C2H_TEST("DeviceScan::InclusiveSumByKey can be tuned", "[scan][by_key][device]",
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceScan::InclusiveScanByKey can be tuned", "[scan][by_key][device]", block_sizes)
+CUB_TEST("DeviceScan::InclusiveScanByKey can be tuned", "[scan][by_key][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   c2h::device_vector<int> d_keys{0, 0, 1, 1, 1, 2, 2};
@@ -226,7 +226,7 @@ C2H_TEST("DeviceScan::InclusiveScanByKey can be tuned", "[scan][by_key][device]"
 
 #endif // TEST_LAUNCH != 1
 
-C2H_TEST("Device scan exclusive-sum-by-key uses environment", "[scan][by_key][device]")
+CUB_TEST("Device scan exclusive-sum-by-key uses environment", "[scan][by_key][device]", CUB_SMALL)
 {
   using num_items_t = int;
 
@@ -255,7 +255,7 @@ C2H_TEST("Device scan exclusive-sum-by-key uses environment", "[scan][by_key][de
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device scan exclusive-scan-by-key uses environment", "[scan][by_key][device]")
+CUB_TEST("Device scan exclusive-scan-by-key uses environment", "[scan][by_key][device]", CUB_SMALL)
 {
   using scan_op_t   = cuda::std::plus<>;
   using num_items_t = int;
@@ -289,7 +289,7 @@ C2H_TEST("Device scan exclusive-scan-by-key uses environment", "[scan][by_key][d
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device scan inclusive-sum-by-key uses environment", "[scan][by_key][device]")
+CUB_TEST("Device scan inclusive-sum-by-key uses environment", "[scan][by_key][device]", CUB_SMALL)
 {
   using num_items_t = int;
 
@@ -318,7 +318,7 @@ C2H_TEST("Device scan inclusive-sum-by-key uses environment", "[scan][by_key][de
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device scan inclusive-scan-by-key uses environment", "[scan][by_key][device]")
+CUB_TEST("Device scan inclusive-scan-by-key uses environment", "[scan][by_key][device]", CUB_SMALL)
 {
   using scan_op_t   = cuda::std::plus<>;
   using num_items_t = int;
@@ -351,7 +351,7 @@ C2H_TEST("Device scan inclusive-scan-by-key uses environment", "[scan][by_key][d
 }
 
 #if _CCCL_COMPILER(GCC, >=, 8) // gcc 7 cannot preserve constexpr-ness from p1 to p2
-C2H_TEST("Test ScanByKeyPolicy properties", "[scan][by_key][device]")
+CUB_TEST("Test ScanByKeyPolicy properties", "[scan][by_key][device]", CUB_SMALL)
 {
   STATIC_REQUIRE(::cuda::std::semiregular<cub::ScanByKeyPolicy>);
   STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::ScanByKeyPolicy>);

@@ -25,7 +25,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceRadixSort::SortKeysDescending, device_radix_so
 
 // %PARAM% TEST_LAUNCH lid 0:1:2
 
-#include <c2h/catch2_test_helper.h>
+#include "catch2_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 
@@ -434,7 +434,7 @@ TEST_CASE("Device radix sort pairs descending DB decomposer+bits works with defa
 
 #endif
 
-C2H_TEST("Device radix sort pairs uses environment", "[radix_sort][device]")
+CUB_TEST("Device radix sort pairs uses environment", "[radix_sort][device]", CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -473,7 +473,7 @@ C2H_TEST("Device radix sort pairs uses environment", "[radix_sort][device]")
   REQUIRE(values_out == expected_values);
 }
 
-C2H_TEST("Device radix sort pairs descending uses environment", "[radix_sort][device]")
+CUB_TEST("Device radix sort pairs descending uses environment", "[radix_sort][device]", CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -511,7 +511,7 @@ C2H_TEST("Device radix sort pairs descending uses environment", "[radix_sort][de
   REQUIRE(values_out == expected_values);
 }
 
-C2H_TEST("Device radix sort keys uses environment", "[radix_sort][device]")
+CUB_TEST("Device radix sort keys uses environment", "[radix_sort][device]", CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -537,7 +537,7 @@ C2H_TEST("Device radix sort keys uses environment", "[radix_sort][device]")
   REQUIRE(keys_out == expected_keys);
 }
 
-C2H_TEST("Device radix sort keys descending uses environment", "[radix_sort][device]")
+CUB_TEST("Device radix sort keys descending uses environment", "[radix_sort][device]", CUB_SMALL)
 {
   auto keys_in  = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out = c2h::device_vector<int>(7);
@@ -1541,7 +1541,7 @@ TEST_CASE("DeviceRadixSort::SortPairsDescending DB decomposer+bits can be tuned"
 #endif // TEST_LAUNCH != 1
 
 #if _CCCL_COMPILER(GCC, >=, 8) // gcc 7 cannot preserve constexpr-ness from p1 to p2
-C2H_TEST("Test RadixSortPolicy properties", "[radix_sort][device]")
+CUB_TEST("Test RadixSortPolicy properties", "[radix_sort][device]", CUB_SMALL)
 {
   STATIC_REQUIRE(::cuda::std::semiregular<cub::RadixSortPolicy>);
   STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::RadixSortPolicy>);

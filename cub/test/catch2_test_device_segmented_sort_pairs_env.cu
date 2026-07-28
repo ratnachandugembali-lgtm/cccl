@@ -25,7 +25,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceSegmentedSort::SortPairsDescending, sort_pairs
 
 // %PARAM% TEST_LAUNCH lid 0:1
 
-#include <c2h/catch2_test_helper.h>
+#include "catch2_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 
@@ -393,7 +393,7 @@ TEST_CASE("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer uses 
   REQUIRE(result_values == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::StableSortPairs uses environment", "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::StableSortPairs uses environment", "[segmented_sort][pairs][device]", CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -435,7 +435,7 @@ C2H_TEST("DeviceSegmentedSort::StableSortPairs uses environment", "[segmented_so
   REQUIRE(values_out == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::StableSortPairsDescending uses environment", "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::StableSortPairsDescending uses environment", "[segmented_sort][pairs][device]", CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -477,7 +477,9 @@ C2H_TEST("DeviceSegmentedSort::StableSortPairsDescending uses environment", "[se
   REQUIRE(values_out == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::StableSortPairs DoubleBuffer uses environment", "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::StableSortPairs DoubleBuffer uses environment",
+         "[segmented_sort][pairs][device]",
+         CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);
@@ -521,8 +523,9 @@ C2H_TEST("DeviceSegmentedSort::StableSortPairs DoubleBuffer uses environment", "
   REQUIRE(result_values == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::StableSortPairsDescending DoubleBuffer uses environment",
-         "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::StableSortPairsDescending DoubleBuffer uses environment",
+         "[segmented_sort][pairs][device]",
+         CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);
@@ -566,7 +569,7 @@ C2H_TEST("DeviceSegmentedSort::StableSortPairsDescending DoubleBuffer uses envir
   REQUIRE(result_values == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::SortPairs nonstable uses environment", "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::SortPairs nonstable uses environment", "[segmented_sort][pairs][device]", CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -608,7 +611,9 @@ C2H_TEST("DeviceSegmentedSort::SortPairs nonstable uses environment", "[segmente
   REQUIRE(values_out == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::SortPairsDescending nonstable uses environment", "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::SortPairsDescending nonstable uses environment",
+         "[segmented_sort][pairs][device]",
+         CUB_SMALL)
 {
   auto keys_in    = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_out   = c2h::device_vector<int>(7);
@@ -650,7 +655,9 @@ C2H_TEST("DeviceSegmentedSort::SortPairsDescending nonstable uses environment", 
   REQUIRE(values_out == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer uses environment", "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer uses environment",
+         "[segmented_sort][pairs][device]",
+         CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);
@@ -693,8 +700,9 @@ C2H_TEST("DeviceSegmentedSort::SortPairs nonstable DoubleBuffer uses environment
   REQUIRE(result_values == expected_values);
 }
 
-C2H_TEST("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer uses environment",
-         "[segmented_sort][pairs][device]")
+CUB_TEST("DeviceSegmentedSort::SortPairsDescending nonstable DoubleBuffer uses environment",
+         "[segmented_sort][pairs][device]",
+         CUB_SMALL)
 {
   auto keys_buf0   = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
   auto keys_buf1   = c2h::device_vector<int>(7);
@@ -759,7 +767,7 @@ using block_sizes =
 
 #if TEST_LAUNCH != 1
 
-C2H_TEST("DeviceSegmentedSort::SortPairs can be tuned", "[segmented_sort][pairs][device]", block_sizes)
+CUB_TEST("DeviceSegmentedSort::SortPairs can be tuned", "[segmented_sort][pairs][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   auto keys_in                             = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
@@ -791,7 +799,8 @@ C2H_TEST("DeviceSegmentedSort::SortPairs can be tuned", "[segmented_sort][pairs]
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedSort::SortPairsDescending can be tuned", "[segmented_sort][pairs][device]", block_sizes)
+CUB_TEST(
+  "DeviceSegmentedSort::SortPairsDescending can be tuned", "[segmented_sort][pairs][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   auto keys_in                             = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
@@ -823,7 +832,7 @@ C2H_TEST("DeviceSegmentedSort::SortPairsDescending can be tuned", "[segmented_so
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedSort::StableSortPairs can be tuned", "[segmented_sort][pairs][device]", block_sizes)
+CUB_TEST("DeviceSegmentedSort::StableSortPairs can be tuned", "[segmented_sort][pairs][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   auto keys_in                             = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};
@@ -855,7 +864,10 @@ C2H_TEST("DeviceSegmentedSort::StableSortPairs can be tuned", "[segmented_sort][
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedSort::StableSortPairsDescending can be tuned", "[segmented_sort][pairs][device]", block_sizes)
+CUB_TEST("DeviceSegmentedSort::StableSortPairsDescending can be tuned",
+         "[segmented_sort][pairs][device]",
+         CUB_SMALL,
+         block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   auto keys_in                             = c2h::device_vector<int>{8, 6, 7, 5, 3, 0, 9};

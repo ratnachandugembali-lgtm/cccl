@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2023, NVIDIA CORPORATION. All rights reserved.
 // SPDX-License-Identifier: BSD-3
 
+#include "catch2_test_macros.h"
 #include "catch2_test_warp_exchange.cuh"
 
 namespace
@@ -23,7 +24,7 @@ struct params_t
 };
 } // namespace
 
-C2H_TEST("Blocked to striped works", "[exchange][warp][shfl]", inout_types, items_per_thread)
+CUB_TEST("Blocked to striped works", "[exchange][warp][shfl]", CUB_SMALL, inout_types, items_per_thread)
 {
   using params   = params_t<TestType>;
   using in_type  = typename params::in_type;
@@ -43,7 +44,7 @@ C2H_TEST("Blocked to striped works", "[exchange][warp][shfl]", inout_types, item
   REQUIRE(h_expected_output == d_out);
 }
 
-C2H_TEST("Striped to blocked works", "[exchange][warp][shfl]", inout_types, items_per_thread)
+CUB_TEST("Striped to blocked works", "[exchange][warp][shfl]", CUB_SMALL, inout_types, items_per_thread)
 {
   using params   = params_t<TestType>;
   using in_type  = typename params::in_type;

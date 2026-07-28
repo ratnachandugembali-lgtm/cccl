@@ -26,7 +26,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceRunLengthEncode::NonTrivialRuns, non_trivial_r
 
 // %PARAM% TEST_LAUNCH lid 0:1:2
 
-#include <c2h/catch2_test_helper.h>
+#include "catch2_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 
@@ -99,7 +99,7 @@ TEST_CASE("DeviceRunLengthEncode::NonTrivialRuns works with default environment"
 
 #endif
 
-C2H_TEST("DeviceRunLengthEncode::Encode uses environment", "[run_length_encode][device]")
+CUB_TEST("DeviceRunLengthEncode::Encode uses environment", "[run_length_encode][device]", CUB_SMALL)
 {
   auto d_in           = c2h::device_vector<int>{1, 1, 1, 2, 2, 3, 4, 4, 4, 4};
   auto d_unique_out   = c2h::device_vector<int>(10);
@@ -135,7 +135,7 @@ C2H_TEST("DeviceRunLengthEncode::Encode uses environment", "[run_length_encode][
   REQUIRE(d_counts_out == expected_counts);
 }
 
-C2H_TEST("DeviceRunLengthEncode::NonTrivialRuns uses environment", "[run_length_encode][device]")
+CUB_TEST("DeviceRunLengthEncode::NonTrivialRuns uses environment", "[run_length_encode][device]", CUB_SMALL)
 {
   auto d_in           = c2h::device_vector<int>{1, 1, 1, 2, 2, 3, 4, 4, 4, 4};
   auto d_offsets_out  = c2h::device_vector<int>(10);
@@ -257,7 +257,7 @@ TEST_CASE("DeviceRunLengthEncode::NonTrivialRuns uses custom stream", "[run_leng
 
 #if TEST_LAUNCH != 1
 
-C2H_TEST("DeviceRunLengthEncode::Encode can be tuned", "[run_length_encode][device]", block_sizes)
+CUB_TEST("DeviceRunLengthEncode::Encode can be tuned", "[run_length_encode][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   constexpr int num_items                  = 256;
@@ -279,7 +279,7 @@ C2H_TEST("DeviceRunLengthEncode::Encode can be tuned", "[run_length_encode][devi
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceRunLengthEncode::NonTrivialRuns can be tuned", "[run_length_encode][device]", block_sizes)
+CUB_TEST("DeviceRunLengthEncode::NonTrivialRuns can be tuned", "[run_length_encode][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   constexpr int num_items                  = 256;
@@ -304,7 +304,7 @@ C2H_TEST("DeviceRunLengthEncode::NonTrivialRuns can be tuned", "[run_length_enco
 #endif // TEST_LAUNCH != 1
 
 #if _CCCL_COMPILER(GCC, >=, 8) // gcc 7 cannot preserve constexpr-ness from p1 to p2
-C2H_TEST("Test RleEncodePolicy properties", "[run_length_encode][device]")
+CUB_TEST("Test RleEncodePolicy properties", "[run_length_encode][device]", CUB_SMALL)
 {
   STATIC_REQUIRE(::cuda::std::semiregular<cub::RleEncodePolicy>);
   STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::RleEncodePolicy>);
@@ -351,7 +351,7 @@ C2H_TEST("Test RleEncodePolicy properties", "[run_length_encode][device]")
 #endif // _CCCL_COMPILER(GCC, >=, 8)
 
 #if _CCCL_COMPILER(GCC, >=, 8) // gcc 7 cannot preserve constexpr-ness from p1 to p2
-C2H_TEST("Test RleNonTrivialRunsPolicy properties", "[run_length_encode][device]")
+CUB_TEST("Test RleNonTrivialRunsPolicy properties", "[run_length_encode][device]", CUB_SMALL)
 {
   STATIC_REQUIRE(::cuda::std::semiregular<cub::RleNonTrivialRunsPolicy>);
   STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::RleNonTrivialRunsPolicy>);

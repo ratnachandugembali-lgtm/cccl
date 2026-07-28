@@ -27,7 +27,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DeviceSegmentedReduce::ArgMax, device_segmented_redu
 
 #include <cuda/__execution/require.h>
 
-#include <c2h/catch2_test_helper.h>
+#include "catch2_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 
@@ -223,7 +223,7 @@ TEST_CASE("Device fixed-size segmented argmax works with default environment", "
 
 #endif
 
-C2H_TEST("Device segmented reduce uses environment", "[segmented_reduce][device]")
+CUB_TEST("Device segmented reduce uses environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -254,7 +254,7 @@ C2H_TEST("Device segmented reduce uses environment", "[segmented_reduce][device]
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device segmented sum uses environment", "[segmented_reduce][device]")
+CUB_TEST("Device segmented sum uses environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -276,7 +276,7 @@ C2H_TEST("Device segmented sum uses environment", "[segmented_reduce][device]")
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device segmented min uses environment", "[segmented_reduce][device]")
+CUB_TEST("Device segmented min uses environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -298,7 +298,7 @@ C2H_TEST("Device segmented min uses environment", "[segmented_reduce][device]")
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device segmented max uses environment", "[segmented_reduce][device]")
+CUB_TEST("Device segmented max uses environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -320,7 +320,7 @@ C2H_TEST("Device segmented max uses environment", "[segmented_reduce][device]")
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device segmented argmin uses environment", "[segmented_reduce][device]")
+CUB_TEST("Device segmented argmin uses environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -342,7 +342,7 @@ C2H_TEST("Device segmented argmin uses environment", "[segmented_reduce][device]
   REQUIRE(d_out == expected);
 }
 
-C2H_TEST("Device segmented argmax uses environment", "[segmented_reduce][device]")
+CUB_TEST("Device segmented argmax uses environment", "[segmented_reduce][device]", CUB_SMALL)
 {
   int num_segments                     = 3;
   thrust::device_vector<int> d_offsets = {0, 4, 7, 9};
@@ -382,7 +382,7 @@ using block_sizes = c2h::type_list<cuda::std::integral_constant<int, 64>, cuda::
 
 #if TEST_LAUNCH != 1
 
-C2H_TEST("DeviceSegmentedReduce::Reduce can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("DeviceSegmentedReduce::Reduce can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -405,7 +405,7 @@ C2H_TEST("DeviceSegmentedReduce::Reduce can be tuned", "[segmented_reduce][devic
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("Fixed-size DeviceSegmentedReduce::Reduce can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("Fixed-size DeviceSegmentedReduce::Reduce can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -426,7 +426,7 @@ C2H_TEST("Fixed-size DeviceSegmentedReduce::Reduce can be tuned", "[segmented_re
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedReduce::Sum can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("DeviceSegmentedReduce::Sum can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -449,7 +449,7 @@ C2H_TEST("DeviceSegmentedReduce::Sum can be tuned", "[segmented_reduce][device]"
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("Fixed-size DeviceSegmentedReduce::Sum can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("Fixed-size DeviceSegmentedReduce::Sum can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -471,7 +471,7 @@ C2H_TEST("Fixed-size DeviceSegmentedReduce::Sum can be tuned", "[segmented_reduc
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedReduce::Min can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("DeviceSegmentedReduce::Min can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -491,7 +491,7 @@ C2H_TEST("DeviceSegmentedReduce::Min can be tuned", "[segmented_reduce][device]"
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("Fixed-size DeviceSegmentedReduce::Min can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("Fixed-size DeviceSegmentedReduce::Min can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -510,7 +510,7 @@ C2H_TEST("Fixed-size DeviceSegmentedReduce::Min can be tuned", "[segmented_reduc
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedReduce::Max can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("DeviceSegmentedReduce::Max can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -530,7 +530,7 @@ C2H_TEST("DeviceSegmentedReduce::Max can be tuned", "[segmented_reduce][device]"
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("Fixed-size DeviceSegmentedReduce::Max can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("Fixed-size DeviceSegmentedReduce::Max can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -549,7 +549,7 @@ C2H_TEST("Fixed-size DeviceSegmentedReduce::Max can be tuned", "[segmented_reduc
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedReduce::ArgMin can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("DeviceSegmentedReduce::ArgMin can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -573,7 +573,7 @@ C2H_TEST("DeviceSegmentedReduce::ArgMin can be tuned", "[segmented_reduce][devic
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("Fixed-size DeviceSegmentedReduce::ArgMin can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("Fixed-size DeviceSegmentedReduce::ArgMin can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -592,7 +592,7 @@ C2H_TEST("Fixed-size DeviceSegmentedReduce::ArgMin can be tuned", "[segmented_re
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DeviceSegmentedReduce::ArgMax can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("DeviceSegmentedReduce::ArgMax can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -616,7 +616,7 @@ C2H_TEST("DeviceSegmentedReduce::ArgMax can be tuned", "[segmented_reduce][devic
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("Fixed-size DeviceSegmentedReduce::ArgMax can be tuned", "[segmented_reduce][device]", block_sizes)
+CUB_TEST("Fixed-size DeviceSegmentedReduce::ArgMax can be tuned", "[segmented_reduce][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
 
@@ -638,7 +638,7 @@ C2H_TEST("Fixed-size DeviceSegmentedReduce::ArgMax can be tuned", "[segmented_re
 #endif // TEST_LAUNCH != 1
 
 #if _CCCL_COMPILER(GCC, >=, 8) // gcc 7 cannot preserve constexpr-ness from p1 to p2
-C2H_TEST("Test SegmentedReducePolicy properties", "[segmented_reduce][device]")
+CUB_TEST("Test SegmentedReducePolicy properties", "[segmented_reduce][device]", CUB_SMALL)
 {
   STATIC_REQUIRE(::cuda::std::semiregular<cub::SegmentedReducePolicy>);
   STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::SegmentedReducePolicy>);

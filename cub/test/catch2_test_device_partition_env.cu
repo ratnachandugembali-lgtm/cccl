@@ -25,7 +25,7 @@ DECLARE_LAUNCH_WRAPPER(cub::DevicePartition::Flagged, device_partition_flagged);
 
 // %PARAM% TEST_LAUNCH lid 0:1:2
 
-#include <c2h/catch2_test_helper.h>
+#include "catch2_test_macros.h"
 
 namespace stdexec = cuda::std::execution;
 
@@ -122,7 +122,7 @@ TEST_CASE("Device partition three-way works with default environment", "[partiti
 
 #endif
 
-C2H_TEST("Device partition uses environment", "[partition][device]")
+CUB_TEST("Device partition uses environment", "[partition][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -153,7 +153,7 @@ C2H_TEST("Device partition uses environment", "[partition][device]")
   REQUIRE(d_out == expected_output);
 }
 
-C2H_TEST("Device partition flagged uses environment", "[partition][device]")
+CUB_TEST("Device partition flagged uses environment", "[partition][device]", CUB_SMALL)
 {
   using value_t     = int;
   using num_items_t = int;
@@ -188,7 +188,7 @@ C2H_TEST("Device partition flagged uses environment", "[partition][device]")
   REQUIRE(d_out == expected_output);
 }
 
-C2H_TEST("Device partition three-way uses environment", "[partition][device]")
+CUB_TEST("Device partition three-way uses environment", "[partition][device]", CUB_SMALL)
 {
   auto d_in             = c2h::device_vector<int>{0, 2, 3, 9, 5, 2, 81, 8};
   auto d_small_out      = c2h::device_vector<int>(8);
@@ -315,7 +315,7 @@ struct three_way_partition_policy_selector
 using block_sizes =
   c2h::type_list<cuda::std::integral_constant<unsigned int, 64>, cuda::std::integral_constant<unsigned int, 128>>;
 
-C2H_TEST("DevicePartition::If can be tuned", "[partition][device]", block_sizes)
+CUB_TEST("DevicePartition::If can be tuned", "[partition][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   auto d_in                                = c2h::device_vector<int>{1, 2, 3, 4, 5, 6, 7, 8};
@@ -332,7 +332,7 @@ C2H_TEST("DevicePartition::If can be tuned", "[partition][device]", block_sizes)
   REQUIRE(d_block_size[0] == target_block_size);
 }
 
-C2H_TEST("DevicePartition::Flagged can be tuned", "[partition][device]", block_sizes)
+CUB_TEST("DevicePartition::Flagged can be tuned", "[partition][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   auto d_in                                = c2h::device_vector<int>{1, 2, 3, 4, 5, 6, 7, 8};
@@ -357,7 +357,7 @@ struct less_than_7_t
   }
 };
 
-C2H_TEST("DevicePartition::If three-way can be tuned", "[partition][device]", block_sizes)
+CUB_TEST("DevicePartition::If three-way can be tuned", "[partition][device]", CUB_SMALL, block_sizes)
 {
   constexpr unsigned int target_block_size = c2h::get<0, TestType>::value;
   auto d_in                                = c2h::device_vector<int>{0, 2, 3, 9, 5, 2, 81, 8};
@@ -390,7 +390,7 @@ C2H_TEST("DevicePartition::If three-way can be tuned", "[partition][device]", bl
 #endif // TEST_LAUNCH != 1
 
 #if _CCCL_COMPILER(GCC, >=, 8) // gcc 7 cannot preserve constexpr-ness from p1 to p2
-C2H_TEST("Test ThreeWayPartitionPolicy properties", "[partition][device]")
+CUB_TEST("Test ThreeWayPartitionPolicy properties", "[partition][device]", CUB_SMALL)
 {
   STATIC_REQUIRE(::cuda::std::semiregular<cub::ThreeWayPartitionPolicy>);
   STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::ThreeWayPartitionPolicy>);
@@ -435,7 +435,7 @@ C2H_TEST("Test ThreeWayPartitionPolicy properties", "[partition][device]")
              ", .delay = 350, .l2_write_latency = 450 } }");
 }
 
-C2H_TEST("Test PartitionPolicy properties", "[partition][device]")
+CUB_TEST("Test PartitionPolicy properties", "[partition][device]", CUB_SMALL)
 {
   STATIC_REQUIRE(::cuda::std::semiregular<cub::PartitionPolicy>);
   STATIC_REQUIRE(::cuda::std::is_aggregate_v<cub::PartitionPolicy>);
