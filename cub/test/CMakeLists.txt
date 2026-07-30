@@ -70,17 +70,58 @@ endfunction()
 
 ## _cub_has_large_tests
 #
-# If the test source declares a CUB_LARGE test or contains the legacy
-# "[large-mem]" marker, `result_var` will be set to TRUE.
-function(_cub_has_large_tests result_var test_src)
-  file(READ "${CUB_SOURCE_DIR}/test/${test_src}" test_source)
-  string(FIND "${test_source}" "CUB_LARGE" cub_large_test)
+# Validate the test's memory classification and set `result_var` to TRUE if
+# the source declares any large tests.
+function(_cub_has_large_tests test_src is_catch2_test result_var)
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${test_src}" test_source)
+
   string(FIND "${test_source}" "[large-mem]" legacy_large_test)
-  if (cub_large_test EQUAL -1 AND legacy_large_test EQUAL -1)
-    set(${result_var} FALSE PARENT_SCOPE)
-  else()
-    set(${result_var} TRUE PARENT_SCOPE)
+  if (NOT legacy_large_test EQUAL -1)
+    message(
+      FATAL_ERROR
+      "${test_src} uses the obsolete [large-mem] marker. Use CUB_SMALL or CUB_LARGE."
+    )
   endif()
+
+  if (is_catch2_test)
+    string(FIND "${test_source}" "CUB_LARGE" cub_large_test)
+    string(FIND "${test_source}" "CUB_SMALL" cub_small_test)
+    if (cub_large_test EQUAL -1 AND cub_small_test EQUAL -1)
+      message(
+        FATAL_ERROR
+        "${test_src} must classify its tests with CUB_SMALL or CUB_LARGE."
+      )
+    endif()
+
+    if (cub_large_test EQUAL -1)
+      set(has_large_tests FALSE)
+    else()
+      set(has_large_tests TRUE)
+    endif()
+  else()
+    string(
+      REGEX MATCHALL
+      "CUB_TEST_MEMORY_CLASS\\([ \t]*(CUB_SMALL|CUB_LARGE)[ \t]*\\)"
+      memory_class_declarations
+      "${test_source}"
+    )
+    list(LENGTH memory_class_declarations memory_class_count)
+    if (NOT memory_class_count EQUAL 1)
+      message(
+        FATAL_ERROR
+        "${test_src} must contain exactly one CUB_TEST_MEMORY_CLASS(CUB_SMALL or CUB_LARGE) declaration."
+      )
+    endif()
+
+    list(GET memory_class_declarations 0 memory_class_declaration)
+    if (memory_class_declaration MATCHES "CUB_LARGE")
+      set(has_large_tests TRUE)
+    else()
+      set(has_large_tests FALSE)
+    endif()
+  endif()
+
+  set(${result_var} ${has_large_tests} PARENT_SCOPE)
 endfunction()
 
 ## _cub_launcher_requires_rdc
@@ -116,7 +157,12 @@ function(
   launcher_id
 )
   _cub_is_catch2_test(is_catch2_test "${test_src}")
-  _cub_has_large_tests(has_large_tests "${test_src}")
+  _cub_is_fail_test(is_fail_test "${test_src}")
+  if (is_catch2_test OR NOT is_fail_test)
+    _cub_has_large_tests("${test_src}" "${is_catch2_test}" has_large_tests)
+  else()
+    set(has_large_tests FALSE)
+  endif()
   _cub_launcher_requires_rdc(cdp_val "${launcher_id}")
 
   # The actual name of the test's target:
@@ -266,8 +312,6 @@ function(
       endif()
     endif()
   else() # Not catch2:
-    _cub_is_fail_test(is_fail_test "${test_src}")
-
     if (is_fail_test)
       cccl_add_executable(
         ${test_target}

@@ -16,7 +16,10 @@
 
 #include <cstdio>
 
+#include "cub_test_memory.h"
 #include "test_util.h"
+
+CUB_TEST_MEMORY_CLASS(CUB_SMALL);
 
 using namespace cub;
 

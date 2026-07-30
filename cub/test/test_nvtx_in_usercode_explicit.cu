@@ -4,7 +4,10 @@
 #include <cuda/iterator>
 #include <cuda/std/functional>
 
+#include "cub_test_memory.h"
 #include <nvtx3/nvtx3.hpp> // user-side include of NVTX, retrieved elsewhere
+
+CUB_TEST_MEMORY_CLASS(CUB_SMALL);
 
 int main()
 {
