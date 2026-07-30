@@ -22,6 +22,8 @@ workflows:
   #
   # IMPORTANT: Do NOT delete or remove the `override:` key below, even when it is empty.
   override:
+    - {jobs: ['test_lid0'], project: 'cub', std: 17, ctk: '13.X', cxx: 'gcc', gpu: 'rtx2080',
+       args: '--test-par 8'}
 
   pull_request:
     # Old CTK: Oldest/newest supported host compilers:
