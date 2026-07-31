@@ -83,11 +83,11 @@ function(_cub_has_large_tests result_var test_src)
   endif()
 endfunction()
 
-## _cub_non_catch2_has_large_test
+## _cub_non_catch2_gpu_percent
 #
 # Require a non-Catch2 runtime test to declare exactly one GPU memory class and
-# set `result_var` to TRUE when it declares CUB_LARGE.
-function(_cub_non_catch2_has_large_test result_var test_src)
+# set `result_var` to the corresponding GPU percentage.
+function(_cub_non_catch2_gpu_percent test_src result_var)
   file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${test_src}" test_source)
   string(
     REGEX MATCHALL
@@ -108,9 +108,9 @@ function(_cub_non_catch2_has_large_test result_var test_src)
 
   string(FIND "${memory_class_declarations}" "CUB_LARGE" cub_large_test)
   if (cub_large_test EQUAL -1)
-    set(${result_var} FALSE PARENT_SCOPE)
+    set(${result_var} ${CCCL_TEST_GPU_PERCENT_SMALL} PARENT_SCOPE)
   else()
-    set(${result_var} TRUE PARENT_SCOPE)
+    set(${result_var} ${CCCL_TEST_GPU_PERCENT_LARGE} PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -150,10 +150,8 @@ function(
   _cub_is_fail_test(is_fail_test "${test_src}")
   if (is_catch2_test)
     _cub_has_large_tests(has_large_tests "${test_src}")
-  elseif (is_fail_test)
-    set(has_large_tests FALSE)
-  else()
-    _cub_non_catch2_has_large_test(has_large_tests "${test_src}")
+  elseif (NOT is_fail_test)
+    _cub_non_catch2_gpu_percent("${test_src}" non_catch2_gpu_percent)
   endif()
   _cub_launcher_requires_rdc(cdp_val "${launcher_id}")
 
@@ -355,11 +353,6 @@ function(
         ERROR_NUMBER_TARGET_NAME_REGEX "\\.err_([0-9]+)"
       )
     else()
-      if (has_large_tests)
-        set(_cub_gpu_percent ${CCCL_TEST_GPU_PERCENT_LARGE})
-      else()
-        set(_cub_gpu_percent ${CCCL_TEST_GPU_PERCENT_SMALL})
-      endif()
       rapids_test_add(
         NAME ${test_target}
         # gersemi: off
@@ -370,7 +363,7 @@ function(
             -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
         # gersemi: on
         GPUS 1
-        PERCENT ${_cub_gpu_percent}
+        PERCENT ${non_catch2_gpu_percent}
       )
       set_tests_properties(
         ${test_target}
