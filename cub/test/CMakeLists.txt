@@ -83,6 +83,37 @@ function(_cub_has_large_tests result_var test_src)
   endif()
 endfunction()
 
+## _cub_non_catch2_has_large_test
+#
+# Require a non-Catch2 runtime test to declare exactly one GPU memory class and
+# set `result_var` to TRUE when it declares CUB_LARGE.
+function(_cub_non_catch2_has_large_test result_var test_src)
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${test_src}" test_source)
+  string(
+    REGEX MATCHALL
+    "CUB_TEST_MEMORY_CLASS\\([ \t\r\n]*(CUB_SMALL|CUB_LARGE)[ \t\r\n]*\\)"
+    memory_class_declarations
+    "${test_source}"
+  )
+  list(LENGTH memory_class_declarations memory_class_count)
+
+  if (NOT memory_class_count EQUAL 1)
+    message(
+      FATAL_ERROR
+      "${test_src} must declare exactly one of "
+      "CUB_TEST_MEMORY_CLASS(CUB_SMALL) or "
+      "CUB_TEST_MEMORY_CLASS(CUB_LARGE); found ${memory_class_count}."
+    )
+  endif()
+
+  string(FIND "${memory_class_declarations}" "CUB_LARGE" cub_large_test)
+  if (cub_large_test EQUAL -1)
+    set(${result_var} FALSE PARENT_SCOPE)
+  else()
+    set(${result_var} TRUE PARENT_SCOPE)
+  endif()
+endfunction()
+
 ## _cub_launcher_requires_rdc
 #
 # If given launcher id corresponds to a CDP launcher, set `out_var` to 1.
@@ -116,7 +147,14 @@ function(
   launcher_id
 )
   _cub_is_catch2_test(is_catch2_test "${test_src}")
-  _cub_has_large_tests(has_large_tests "${test_src}")
+  _cub_is_fail_test(is_fail_test "${test_src}")
+  if (is_catch2_test)
+    _cub_has_large_tests(has_large_tests "${test_src}")
+  elseif (is_fail_test)
+    set(has_large_tests FALSE)
+  else()
+    _cub_non_catch2_has_large_test(has_large_tests "${test_src}")
+  endif()
   _cub_launcher_requires_rdc(cdp_val "${launcher_id}")
 
   # The actual name of the test's target:
@@ -264,8 +302,6 @@ function(
       endif()
     endif()
   else() # Not catch2:
-    _cub_is_fail_test(is_fail_test "${test_src}")
-
     if (is_fail_test)
       cccl_add_executable(
         ${test_target}
