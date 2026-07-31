@@ -1,9 +1,9 @@
 # Check all source files for various issues that can be detected using pattern
 # matching.
 #
-# This is run as a ctest test named `cub.test.cmake.check_namespace`, or
+# This is run as a ctest test named `cub.test.cmake.check_source_files`, or
 # manually with:
-# cmake -D "CUB_SOURCE_DIR=<CUB project root>" -P check_namespace.cmake
+# cmake -D "CUB_SOURCE_DIR=<CUB project root>" -P check_source_files.cmake
 
 cmake_minimum_required(VERSION 3.15)
 
@@ -21,6 +21,15 @@ file(
   "${CUB_SOURCE_DIR}/cub/*.cu"
   "${CUB_SOURCE_DIR}/cub/*.h"
   "${CUB_SOURCE_DIR}/cub/*.cpp"
+)
+
+file(
+  GLOB_RECURSE cub_test_srcs
+  RELATIVE "${CUB_SOURCE_DIR}"
+  "${CUB_SOURCE_DIR}/test/*.cuh"
+  "${CUB_SOURCE_DIR}/test/*.cu"
+  "${CUB_SOURCE_DIR}/test/*.h"
+  "${CUB_SOURCE_DIR}/test/*.cpp"
 )
 
 ################################################################################
@@ -96,6 +105,49 @@ if (NOT valid_count EQUAL 5)
 endif()
 
 ################################################################################
+# Test registration checks.
+# Catch2 tests must use the CUB wrappers so every test case declares its GPU
+# memory class.
+set(
+  raw_test_registration_regex
+  "(^|[\n\r])[ \t]*(C2H_TEST(_LIST)?(_WITH_FIXTURE)?|TEST_CASE(_METHOD)?|SCENARIO(_METHOD)?|TEMPLATE_((PRODUCT_)?TEST_CASE(_METHOD)?(_SIG)?|LIST_TEST_CASE(_METHOD)?))[ \t]*\\("
+)
+
+# Validation check for the above regex pattern:
+count_substrings([=[
+C2H_TEST(
+C2H_TEST_LIST(
+C2H_TEST_WITH_FIXTURE(
+C2H_TEST_LIST_WITH_FIXTURE(
+TEST_CASE(
+TEST_CASE_METHOD(
+SCENARIO(
+SCENARIO_METHOD(
+TEMPLATE_TEST_CASE(
+TEMPLATE_TEST_CASE_SIG(
+TEMPLATE_TEST_CASE_METHOD(
+TEMPLATE_TEST_CASE_METHOD_SIG(
+TEMPLATE_PRODUCT_TEST_CASE(
+TEMPLATE_PRODUCT_TEST_CASE_SIG(
+TEMPLATE_PRODUCT_TEST_CASE_METHOD(
+TEMPLATE_PRODUCT_TEST_CASE_METHOD_SIG(
+TEMPLATE_LIST_TEST_CASE(
+TEMPLATE_LIST_TEST_CASE_METHOD(
+CUB_TEST(
+CUB_TEST_CASE(
+CUB_TEST_LIST(
+]=]
+  "${raw_test_registration_regex}" valid_count
+)
+if (NOT valid_count EQUAL 18)
+  message(
+    FATAL_ERROR
+    "Validation of raw test registration regex failed: "
+    "Matched ${valid_count} times, expected 18."
+  )
+endif()
+
+################################################################################
 # Read source files:
 foreach (src ${cub_srcs})
   file(READ "${CUB_SOURCE_DIR}/${src}" src_contents)
@@ -161,6 +213,19 @@ foreach (src ${cub_srcs})
       )
       set(found_errors 1)
     endif()
+  endif()
+endforeach()
+
+foreach (src ${cub_test_srcs})
+  file(READ "${CUB_SOURCE_DIR}/${src}" src_contents)
+  count_substrings(
+    "${src_contents}"
+    "${raw_test_registration_regex}"
+    raw_test_registration_count
+  )
+  if (NOT raw_test_registration_count EQUAL 0)
+    message("'${src}' registers tests without using a CUB_TEST wrapper.")
+    set(found_errors 1)
   endif()
 endforeach()
 

@@ -27,20 +27,12 @@ if ("NVHPC" STREQUAL "${CMAKE_CXX_COMPILER_ID}")
 endif()
 
 file(
-  GLOB_RECURSE test_srcs
+  GLOB_RECURSE all_test_srcs
   RELATIVE "${CUB_SOURCE_DIR}/test"
   CONFIGURE_DEPENDS
   test_*.cu
   catch2_test_*.cu
 )
-
-# nvtx headers contain a variable named `module`, which breaks nvc++ as that is a keyword
-if (
-  "NVHPC" STREQUAL "${CMAKE_CXX_COMPILER_ID}"
-  AND NOT "${CMAKE_CXX_STANDARD}" MATCHES "17"
-)
-  list(FILTER test_srcs EXCLUDE REGEX "test_nvtx*")
-endif()
 
 ## _cub_is_catch2_test
 #
@@ -68,18 +60,24 @@ function(_cub_is_fail_test result_var test_src)
   endif()
 endfunction()
 
-## _cub_has_large_tests
+## _cub_classify_test_memory
 #
 # Validate the test's memory classification and set `result_var` to TRUE if
 # the source declares any large tests.
-function(_cub_has_large_tests test_src is_catch2_test is_fail_test result_var)
+function(
+  _cub_classify_test_memory
+  test_src
+  is_catch2_test
+  is_fail_test
+  result_var
+)
   file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${test_src}" test_source)
 
   string(FIND "${test_source}" "[large-mem]" legacy_large_test)
   if (NOT legacy_large_test EQUAL -1)
     message(
       FATAL_ERROR
-      "${test_src} uses the obsolete [large-mem] marker. Use CUB_SMALL or CUB_LARGE."
+      "${test_src} uses the obsolete [large-mem] marker. Pass CUB_SMALL or CUB_LARGE to CUB_TEST, or use CUB_TEST_MEMORY_CLASS for a non-Catch2 test."
     )
   endif()
 
@@ -94,7 +92,7 @@ function(_cub_has_large_tests test_src is_catch2_test is_fail_test result_var)
     if (cub_large_test EQUAL -1 AND cub_small_test EQUAL -1)
       message(
         FATAL_ERROR
-        "${test_src} must classify its tests with CUB_SMALL or CUB_LARGE."
+        "${test_src} must pass CUB_SMALL or CUB_LARGE to every CUB_TEST declaration."
       )
     endif()
 
@@ -128,6 +126,26 @@ function(_cub_has_large_tests test_src is_catch2_test is_fail_test result_var)
 
   set(${result_var} ${has_large_tests} PARENT_SCOPE)
 endfunction()
+
+foreach (test_src IN LISTS all_test_srcs)
+  _cub_is_catch2_test(is_catch2_test "${test_src}")
+  _cub_is_fail_test(is_fail_test "${test_src}")
+  _cub_classify_test_memory("${test_src}" "${is_catch2_test}" "${is_fail_test}" has_large_tests)
+  set_property(
+    SOURCE "${test_src}"
+    PROPERTY CUB_HAS_LARGE_TESTS "${has_large_tests}"
+  )
+endforeach()
+
+set(test_srcs ${all_test_srcs})
+
+# nvtx headers contain a variable named `module`, which breaks nvc++ as that is a keyword
+if (
+  "NVHPC" STREQUAL "${CMAKE_CXX_COMPILER_ID}"
+  AND NOT "${CMAKE_CXX_STANDARD}" MATCHES "17"
+)
+  list(FILTER test_srcs EXCLUDE REGEX "test_nvtx*")
+endif()
 
 ## _cub_launcher_requires_rdc
 #
@@ -163,7 +181,7 @@ function(
 )
   _cub_is_catch2_test(is_catch2_test "${test_src}")
   _cub_is_fail_test(is_fail_test "${test_src}")
-  _cub_has_large_tests("${test_src}" "${is_catch2_test}" "${is_fail_test}" has_large_tests)
+  get_source_file_property(has_large_tests "${test_src}" CUB_HAS_LARGE_TESTS)
   _cub_launcher_requires_rdc(cdp_val "${launcher_id}")
 
   # The actual name of the test's target:
