@@ -17,7 +17,7 @@
 #include <iostream>
 #include <memory>
 
-#include "cub_test_memory.h"
+#include "cub_non_catch2_test_memory.h"
 #include "test_util.h"
 
 CUB_TEST_MEMORY_CLASS(CUB_SMALL);

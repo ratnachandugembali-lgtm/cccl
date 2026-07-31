@@ -21,7 +21,7 @@
 #include <utility>
 #include <vector>
 
-#include "cub_test_memory.h"
+#include "cub_non_catch2_test_memory.h"
 #include "test_util.h"
 #include <c2h/catch2_test_helper.h>
 #include <c2h/vector.h>
