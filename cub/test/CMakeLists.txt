@@ -70,16 +70,46 @@ endfunction()
 
 ## _cub_has_large_tests
 #
-# If the test source declares a CUB_LARGE test or contains the legacy
-# "[large-mem]" marker, `result_var` will be set to TRUE.
+# If the test source declares a CUB_LARGE test, `result_var` will be set to
+# TRUE.
 function(_cub_has_large_tests result_var test_src)
   file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${test_src}" test_source)
   string(FIND "${test_source}" "CUB_LARGE" cub_large_test)
-  string(FIND "${test_source}" "[large-mem]" legacy_large_test)
-  if (cub_large_test EQUAL -1 AND legacy_large_test EQUAL -1)
+  if (cub_large_test EQUAL -1)
     set(${result_var} FALSE PARENT_SCOPE)
   else()
     set(${result_var} TRUE PARENT_SCOPE)
+  endif()
+endfunction()
+
+## _cub_non_catch2_gpu_percent
+#
+# Require a non-Catch2 runtime test to declare exactly one GPU memory class and
+# set `result_var` to the corresponding GPU percentage.
+function(_cub_non_catch2_gpu_percent result_var test_src)
+  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${test_src}" test_source)
+  string(
+    REGEX MATCHALL
+    "CUB_TEST_MEMORY_CLASS\\([ \t\r\n]*(CUB_SMALL|CUB_LARGE)[ \t\r\n]*\\)"
+    memory_class_declarations
+    "${test_source}"
+  )
+  list(LENGTH memory_class_declarations memory_class_count)
+
+  if (NOT memory_class_count EQUAL 1)
+    message(
+      FATAL_ERROR
+      "${test_src} must declare exactly one of "
+      "CUB_TEST_MEMORY_CLASS(CUB_SMALL) or "
+      "CUB_TEST_MEMORY_CLASS(CUB_LARGE); found ${memory_class_count}."
+    )
+  endif()
+
+  string(FIND "${memory_class_declarations}" "CUB_LARGE" cub_large_test)
+  if (cub_large_test EQUAL -1)
+    set(${result_var} ${CCCL_TEST_GPU_PERCENT_SMALL} PARENT_SCOPE)
+  else()
+    set(${result_var} ${CCCL_TEST_GPU_PERCENT_LARGE} PARENT_SCOPE)
   endif()
 endfunction()
 
@@ -116,7 +146,12 @@ function(
   launcher_id
 )
   _cub_is_catch2_test(is_catch2_test "${test_src}")
-  _cub_has_large_tests(has_large_tests "${test_src}")
+  _cub_is_fail_test(is_fail_test "${test_src}")
+  if (is_catch2_test)
+    _cub_has_large_tests(has_large_tests "${test_src}")
+  elseif (NOT is_fail_test)
+    _cub_non_catch2_gpu_percent(non_catch2_gpu_percent "${test_src}")
+  endif()
   _cub_launcher_requires_rdc(cdp_val "${launcher_id}")
 
   # The actual name of the test's target:
@@ -264,8 +299,6 @@ function(
       endif()
     endif()
   else() # Not catch2:
-    _cub_is_fail_test(is_fail_test "${test_src}")
-
     if (is_fail_test)
       cccl_add_executable(
         ${test_target}
@@ -319,11 +352,6 @@ function(
         ERROR_NUMBER_TARGET_NAME_REGEX "\\.err_([0-9]+)"
       )
     else()
-      if (has_large_tests)
-        set(_cub_gpu_percent ${CCCL_TEST_GPU_PERCENT_LARGE})
-      else()
-        set(_cub_gpu_percent ${CCCL_TEST_GPU_PERCENT_SMALL})
-      endif()
       rapids_test_add(
         NAME ${test_target}
         # gersemi: off
@@ -334,7 +362,7 @@ function(
             -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
         # gersemi: on
         GPUS 1
-        PERCENT ${_cub_gpu_percent}
+        PERCENT ${non_catch2_gpu_percent}
       )
       set_tests_properties(
         ${test_target}

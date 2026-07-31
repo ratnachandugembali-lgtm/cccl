@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) 2023, NVIDIA CORPORATION. All rights reserved.
 // SPDX-License-Identifier: BSD-3
 
-// [large-mem]
-
 #include <cub/device/device_copy.cuh>
 #include <cub/util_ptx.cuh>
 
@@ -23,9 +21,12 @@
 #include <utility>
 #include <vector>
 
+#include "cub_non_catch2_test_memory.h"
 #include "test_util.h"
 #include <c2h/catch2_test_helper.h>
 #include <c2h/vector.h>
+
+CUB_TEST_MEMORY_CLASS(CUB_LARGE);
 
 /**
  * @brief Host-side random data generation
