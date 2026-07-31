@@ -72,7 +72,7 @@ endfunction()
 #
 # Validate the test's memory classification and set `result_var` to TRUE if
 # the source declares any large tests.
-function(_cub_has_large_tests test_src is_catch2_test result_var)
+function(_cub_has_large_tests test_src is_catch2_test is_fail_test result_var)
   file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${test_src}" test_source)
 
   string(FIND "${test_source}" "[large-mem]" legacy_large_test)
@@ -81,6 +81,11 @@ function(_cub_has_large_tests test_src is_catch2_test result_var)
       FATAL_ERROR
       "${test_src} uses the obsolete [large-mem] marker. Use CUB_SMALL or CUB_LARGE."
     )
+  endif()
+
+  if (is_fail_test AND NOT is_catch2_test)
+    set(${result_var} FALSE PARENT_SCOPE)
+    return()
   endif()
 
   if (is_catch2_test)
@@ -158,11 +163,7 @@ function(
 )
   _cub_is_catch2_test(is_catch2_test "${test_src}")
   _cub_is_fail_test(is_fail_test "${test_src}")
-  if (is_catch2_test OR NOT is_fail_test)
-    _cub_has_large_tests("${test_src}" "${is_catch2_test}" has_large_tests)
-  else()
-    set(has_large_tests FALSE)
-  endif()
+  _cub_has_large_tests("${test_src}" "${is_catch2_test}" "${is_fail_test}" has_large_tests)
   _cub_launcher_requires_rdc(cdp_val "${launcher_id}")
 
   # The actual name of the test's target:
