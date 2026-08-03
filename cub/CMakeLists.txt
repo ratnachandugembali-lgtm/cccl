@@ -10,6 +10,9 @@ option(CUB_ENABLE_HEADER_TESTING "Test that all public headers compile." ON)
 option(CUB_ENABLE_TESTING "Build CUB testing suite." ON)
 option(CUB_ENABLE_EXAMPLES "Build CUB examples." ON)
 
+set(CCCL_TEST_GPU_PERCENT_SMALL 15)
+set(CCCL_TEST_GPU_PERCENT_LARGE 100)
+
 option(
   CCCL_ENABLE_EXPERIMENTAL_TILE_TRANSFORM_DISPATCH
   "EXPERIMENTAL: build cub::DeviceTransform's tile path (requires nvcc --enable-tile). This flag is experimental and may change or be removed."

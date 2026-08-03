@@ -23,7 +23,7 @@ function(cub_add_example target_name_var example_name example_src)
   set(example_target cub.example.${example_name})
   set(${target_name_var} ${example_target} PARENT_SCOPE)
 
-  cccl_add_executable(${example_target} SOURCES "${example_src}" ADD_CTEST)
+  cccl_add_executable(${example_target} SOURCES "${example_src}")
   cub_configure_cuda_target(${example_target} RDC ${CUB_FORCE_RDC})
   target_link_libraries(
     ${example_target}
@@ -35,6 +35,17 @@ function(cub_add_example target_name_var example_name example_src)
     ${example_target}
     PRIVATE "${CUB_SOURCE_DIR}/examples"
   )
+
+  if (CUB_ENABLE_TESTING)
+    rapids_test_add(
+      NAME ${example_target}
+      COMMAND ${example_target}
+      GPUS 1
+      PERCENT ${CCCL_TEST_GPU_PERCENT_SMALL}
+    )
+  else()
+    add_test(NAME ${example_target} COMMAND "$<TARGET_FILE:${example_target}>")
+  endif()
 endfunction()
 
 add_subdirectory(block)

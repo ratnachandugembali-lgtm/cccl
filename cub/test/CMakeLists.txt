@@ -18,9 +18,6 @@ cccl_get_nvtx()
 cccl_get_rapids_test()
 rapids_test_init()
 
-set(CCCL_TEST_GPU_PERCENT_SMALL 15)
-set(CCCL_TEST_GPU_PERCENT_LARGE 100)
-
 set(build_nvrtc_tests ON)
 if ("NVHPC" STREQUAL "${CMAKE_CXX_COMPILER_ID}")
   set(build_nvrtc_tests OFF)
