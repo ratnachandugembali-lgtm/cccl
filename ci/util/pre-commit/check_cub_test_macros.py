@@ -80,6 +80,25 @@ def remove_comments(source: str) -> str:
     return "".join(result)
 
 
+def self_test() -> None:
+    fixtures = [
+        ('// C2H_TEST("x")', False),
+        ('/*\nTEST_CASE("x")\n*/', False),
+        ('const char* value = "TEST_CASE(";', False),
+        ('CUB_TEST("x", "[y]", CUB_SMALL)', False),
+        ('CUB_TEST_CASE("x", "[y]", CUB_LARGE)', False),
+        ('CUB_TEST_LIST("x", "[y]", CUB_SMALL, types)', False),
+    ]
+    fixtures.extend((f'{macro}("x")', True) for macro in RAW_TEST_MACROS)
+
+    for source, expected in fixtures:
+        found = bool(RAW_TEST_MACRO_RE.search(remove_comments(source)))
+        if found != expected:
+            raise RuntimeError(
+                f"test-registration checker self-test failed: {source!r}"
+            )
+
+
 def check_file(filename: str) -> bool:
     with open(filename, encoding="utf-8", errors="surrogateescape") as source_file:
         source = source_file.read()
@@ -99,6 +118,8 @@ def check_file(filename: str) -> bool:
 
 
 def main() -> int:
+    self_test()
+
     found_error = False
     for filename in sys.argv[1:]:
         found_error = check_file(filename) or found_error
