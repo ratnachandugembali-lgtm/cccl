@@ -3,25 +3,47 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+// This file is a copy of rapids-cmake v26.06.00's
+// rapids-cmake/test/detail/generate_resource_spec.cpp with a single change:
+// std::filesystem::current_path() is replaced with POSIX getcwd(), because
+// GCC 7 does not ship <filesystem> (it arrived in GCC 8). CUB swaps this
+// source into the generate_ctest_json target only when compiling with
+// GCC < 8 (see cub/test/CMakeLists.txt). Remove this file when GCC 7
+// support ends or the pinned rapids-cmake no longer uses <filesystem>.
+
 #ifdef HAVE_CUDA
-#include <cuda_runtime_api.h>
+#  include <cuda_runtime_api.h>
 #endif
 
-#include <filesystem>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 
-struct version {
-  version() : json_major(1), json_minor(0) {}
+#include <unistd.h>
+
+struct version
+{
+  version()
+      : json_major(1)
+      , json_minor(0)
+  {}
   int json_major;
   int json_minor;
 };
 
-struct gpu {
-  gpu(int i) : id(i), memory(0), slots(0) {};
-  gpu(int i, size_t mem) : id(i), memory(mem), slots(100) {}
+struct gpu
+{
+  gpu(int i)
+      : id(i)
+      , memory(0)
+      , slots(0) {};
+  gpu(int i, size_t mem)
+      : id(i)
+      , memory(mem)
+      , slots(100)
+  {}
   int id;
   size_t memory;
   int slots;
@@ -45,10 +67,14 @@ int main(int argc, char** argv)
 
 #ifdef HAVE_CUDA
   cudaGetDeviceCount(&nDevices);
-  if (nDevices == 0) {
+  if (nDevices == 0)
+  {
     gpus.push_back(gpu(0));
-  } else {
-    for (int i = 0; i < nDevices; ++i) {
+  }
+  else
+  {
+    for (int i = 0; i < nDevices; ++i)
+    {
       cudaDeviceProp prop;
       cudaGetDeviceProperties(&prop, i);
       gpus.push_back(gpu(i, prop.totalGlobalMem));
@@ -58,7 +84,8 @@ int main(int argc, char** argv)
   gpus.push_back(gpu(0));
 #endif
 
-  if (argc != 2) {
+  if (argc != 2)
+  {
     std::cout << "Usage: " << argv[0] << " <filename>\n";
     return 1;
   }
@@ -67,8 +94,15 @@ int main(int argc, char** argv)
   // not have a "give me the current working directory" command, so we have to
   // get it from here.
   std::string arg = argv[1];
-  if (arg == "--cwd") {
-    std::cout << std::filesystem::current_path().string();
+  if (arg == "--cwd")
+  {
+    char* cwd = ::getcwd(nullptr, 0);
+    if (cwd == nullptr)
+    {
+      return 1;
+    }
+    std::cout << cwd;
+    std::free(cwd);
     std::cout.flush();
     return 0;
   }
@@ -81,9 +115,13 @@ int main(int argc, char** argv)
   fout << ",\n";
   fout << "\"local\": [{\n";
   fout << "\t\"gpus\": [\n";
-  for (int i = 0; i < gpus.size(); ++i) {
+  for (int i = 0; i < gpus.size(); ++i)
+  {
     to_json(fout, gpus[i]);
-    if (i != (gpus.size() - 1)) { fout << ","; }
+    if (i != (gpus.size() - 1))
+    {
+      fout << ",";
+    }
     fout << "\n";
   }
   fout << "\t]\n";

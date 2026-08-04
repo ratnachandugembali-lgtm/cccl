@@ -18,6 +18,30 @@ cccl_get_nvtx()
 cccl_get_rapids_test()
 rapids_test_init()
 
+# GCC 7 does not ship <filesystem> (it arrived in GCC 8), which the
+# rapids-cmake resource-spec detector uses. On that compiler, compile the
+# detector from a local copy that uses getcwd() instead. The target, fixture
+# test, and all other wiring stay exactly as rapids-cmake created them; only
+# the source file is swapped. Remove when GCC 7 support ends or the pinned
+# rapids-cmake no longer uses <filesystem>.
+if (
+  TARGET generate_ctest_json
+  AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+  AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0
+)
+  set(
+    _cub_resource_spec_src
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/generate_resource_spec_gcc7.cpp"
+  )
+  set_target_properties(
+    generate_ctest_json
+    PROPERTIES SOURCES "${_cub_resource_spec_src}"
+  )
+  # Mirror rapids-cmake: the detector builds as CUDA when CUDA is enabled,
+  # which is always the case for CUB tests.
+  set_property(SOURCE "${_cub_resource_spec_src}" PROPERTY LANGUAGE CUDA)
+endif()
+
 set(CCCL_TEST_GPU_PERCENT_SMALL 15)
 set(CCCL_TEST_GPU_PERCENT_LARGE 100)
 
