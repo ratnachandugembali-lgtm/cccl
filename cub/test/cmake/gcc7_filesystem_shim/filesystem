@@ -5,7 +5,7 @@
 // <filesystem> (it arrived in GCC 8). This header shadows the standard
 // header for the rapids-cmake resource-spec detector only, providing
 // exactly what that tool uses: std::filesystem::current_path().string().
-// POSIX-only by design. Remove when GCC 7 support is dropped.
+// Linux-only by design. Remove when GCC 7 support is dropped.
 
 #pragma once
 
