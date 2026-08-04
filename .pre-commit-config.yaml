@@ -130,7 +130,7 @@ repos:
         name: require CUB test memory classification
         entry: ci/util/pre-commit/check_cub_test_macros.py
         language: python
-        files: ^(cub/test/.*\.cuh?|ci/util/pre-commit/check_cub_test_macros\.py)$
+        files: ^(cub/test/.*\.(cu|cuh|h)|ci/util/pre-commit/check_cub_test_macros\.py)$
         types: [file]
 
       - id: unprintable-unicode
