@@ -98,7 +98,8 @@ def self_test() -> bool:
             actual_result = "match" if found else "no match"
             print(
                 "internal error: test-registration checker self-test failed for "
-                f"{source!r}: expected {expected_result}, found {actual_result}.",
+                f"{source!r}: expected {expected_result}, found {actual_result}. "
+                "This is a problem with the checker, not the files being committed.",
                 file=sys.stderr,
             )
             return False
