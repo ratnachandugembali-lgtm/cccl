@@ -80,7 +80,7 @@ def remove_comments(source: str) -> str:
     return "".join(result)
 
 
-def self_test() -> None:
+def self_test() -> bool:
     fixtures = [
         ('// C2H_TEST("x")', False),
         ('/*\nTEST_CASE("x")\n*/', False),
@@ -94,9 +94,16 @@ def self_test() -> None:
     for source, expected in fixtures:
         found = bool(RAW_TEST_MACRO_RE.search(remove_comments(source)))
         if found != expected:
-            raise RuntimeError(
-                f"test-registration checker self-test failed: {source!r}"
+            expected_result = "match" if expected else "no match"
+            actual_result = "match" if found else "no match"
+            print(
+                "internal error: test-registration checker self-test failed for "
+                f"{source!r}: expected {expected_result}, found {actual_result}.",
+                file=sys.stderr,
             )
+            return False
+
+    return True
 
 
 def check_file(filename: str) -> bool:
@@ -118,7 +125,8 @@ def check_file(filename: str) -> bool:
 
 
 def main() -> int:
-    self_test()
+    if not self_test():
+        return 2
 
     found_error = False
     for filename in sys.argv[1:]:
