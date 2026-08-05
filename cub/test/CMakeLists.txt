@@ -18,6 +18,46 @@ cccl_get_nvtx()
 cccl_get_rapids_test()
 rapids_test_init()
 
+set(_cub_test_install_component cub-tests)
+set(_cub_test_install_destination "${CMAKE_INSTALL_BINDIR}/cub-tests")
+# Resolve CMake from PATH so the installed tests do not retain the configure-host path.
+set(_cub_test_cmake_command cmake)
+set(
+  _cub_test_install_cccl_dir
+  "${CMAKE_CURRENT_BINARY_DIR}/${_cub_test_install_destination}/cccl"
+)
+
+# Stage the support files under their source-tree layout so the same command
+# works from both the build tree and the relocatable test installation.
+file(
+  MAKE_DIRECTORY
+    "${_cub_test_install_cccl_dir}/cub/test"
+    "${_cub_test_install_cccl_dir}/ci"
+)
+configure_file(
+  "${CUB_SOURCE_DIR}/test/run_test.cmake"
+  "${_cub_test_install_cccl_dir}/cub/test/run_test.cmake"
+  COPYONLY
+)
+configure_file(
+  "${CCCL_SOURCE_DIR}/ci/compute-sanitizer-suppressions.xml"
+  "${_cub_test_install_cccl_dir}/ci/compute-sanitizer-suppressions.xml"
+  COPYONLY
+)
+
+install(
+  FILES "${CUB_SOURCE_DIR}/test/run_test.cmake"
+  DESTINATION "${_cub_test_install_destination}/cccl/cub/test"
+  COMPONENT ${_cub_test_install_component}
+  EXCLUDE_FROM_ALL
+)
+install(
+  FILES "${CCCL_SOURCE_DIR}/ci/compute-sanitizer-suppressions.xml"
+  DESTINATION "${_cub_test_install_destination}/cccl/ci"
+  COMPONENT ${_cub_test_install_component}
+  EXCLUDE_FROM_ALL
+)
+
 # GCC 7 does not ship <filesystem> (it arrived in GCC 8), which the
 # rapids-cmake resource-spec detector includes. Shadow the header with a
 # minimal local shim on that compiler. Remove when GCC 7 support ends.
@@ -153,6 +193,7 @@ function(
   launcher_id
 )
   _cub_is_catch2_test(is_catch2_test "${test_src}")
+  _cub_is_fail_test(is_fail_test "${test_src}")
   _cub_has_large_tests(has_large_tests "${test_src}")
   _cub_launcher_requires_rdc(cdp_val "${launcher_id}")
 
@@ -204,16 +245,17 @@ function(
       NAME ${test_target}
       # gersemi: off
       COMMAND
-        "${CMAKE_COMMAND}"
-           "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+        ${_cub_test_cmake_command}
+           "-DCCCL_SOURCE_DIR=${_cub_test_install_cccl_dir}"
            "-DTEST=$<TARGET_FILE:${test_target}>"
            "-DARGS=[small-mem]"
            "-DALLOW_RUNNING_NO_TESTS=ON"
            "-DTYPE=Catch2"
-           -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+           -P "${_cub_test_install_cccl_dir}/cub/test/run_test.cmake"
       # gersemi: on
       GPUS 1
       PERCENT ${CCCL_TEST_GPU_PERCENT_SMALL}
+      INSTALL_COMPONENT_SET ${_cub_test_install_component}
     )
     set_tests_properties(
       ${test_target}
@@ -225,16 +267,17 @@ function(
         NAME ${test_target}.large
         # gersemi: off
         COMMAND
-          "${CMAKE_COMMAND}"
-             "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+          ${_cub_test_cmake_command}
+             "-DCCCL_SOURCE_DIR=${_cub_test_install_cccl_dir}"
              "-DTEST=$<TARGET_FILE:${test_target}>"
              "-DARGS=[large-mem]"
              "-DALLOW_RUNNING_NO_TESTS=ON"
              "-DTYPE=Catch2"
-             -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+             -P "${_cub_test_install_cccl_dir}/cub/test/run_test.cmake"
         # gersemi: on
         GPUS 1
         PERCENT ${CCCL_TEST_GPU_PERCENT_LARGE}
+        INSTALL_COMPONENT_SET ${_cub_test_install_component}
       )
       set_tests_properties(
         ${test_target}.large
@@ -301,8 +344,6 @@ function(
       endif()
     endif()
   else() # Not catch2:
-    _cub_is_fail_test(is_fail_test "${test_src}")
-
     if (NOT is_fail_test)
       _cub_validate_non_catch2_memory_class("${test_src}")
     endif()
@@ -369,13 +410,14 @@ function(
         NAME ${test_target}
         # gersemi: off
         COMMAND
-          "${CMAKE_COMMAND}"
-            "-DCCCL_SOURCE_DIR=${CCCL_SOURCE_DIR}"
+          ${_cub_test_cmake_command}
+            "-DCCCL_SOURCE_DIR=${_cub_test_install_cccl_dir}"
             "-DTEST=$<TARGET_FILE:${test_target}>"
-            -P "${CUB_SOURCE_DIR}/test/run_test.cmake"
+            -P "${_cub_test_install_cccl_dir}/cub/test/run_test.cmake"
         # gersemi: on
         GPUS 1
         PERCENT ${_cub_gpu_percent}
+        INSTALL_COMPONENT_SET ${_cub_test_install_component}
       )
       set_tests_properties(
         ${test_target}
@@ -396,6 +438,16 @@ function(
     AND "${CMAKE_CUDA_COMPILER_VERSION}" VERSION_GREATER_EQUAL "22.0.0"
   )
     target_compile_options(${test_target} PRIVATE "-Wno-pass-failed")
+  endif()
+
+  if (NOT is_fail_test)
+    install(
+      TARGETS ${test_target}
+      RUNTIME
+        DESTINATION ${_cub_test_install_destination}
+        COMPONENT ${_cub_test_install_component}
+        EXCLUDE_FROM_ALL
+    )
   endif()
 endfunction()
 
@@ -545,6 +597,11 @@ foreach (test_src IN LISTS test_srcs)
     endforeach() # Variant
   endif() # Has variants
 endforeach() # Source file
+
+rapids_test_install_relocatable(
+  INSTALL_COMPONENT_SET ${_cub_test_install_component}
+  DESTINATION ${_cub_test_install_destination}
+)
 
 add_subdirectory(cmake)
 add_subdirectory(cubin-check)
