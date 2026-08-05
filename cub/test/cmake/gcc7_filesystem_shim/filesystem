@@ -11,6 +11,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <utility>
 
 #include <unistd.h>
 
@@ -23,7 +24,7 @@ class path
 {
 public:
   explicit path(std::string value)
-      : value_(static_cast<std::string&&>(value))
+      : value_(std::move(value))
   {}
 
   const std::string& string() const
@@ -46,7 +47,7 @@ inline path current_path()
   }
   std::string result(cwd);
   std::free(cwd);
-  return path(static_cast<std::string&&>(result));
+  return path(std::move(result));
 }
 
 } // namespace filesystem
