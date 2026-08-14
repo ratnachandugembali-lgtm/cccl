@@ -20,8 +20,8 @@ rapids_test_init()
 
 set(_cub_test_install_component cub-tests)
 set(_cub_test_install_destination "${CMAKE_INSTALL_BINDIR}/cub-tests")
-# Resolve CMake from PATH so the installed tests do not retain the configure-host path.
-set(_cub_test_cmake_command cmake)
+# RAPIDS relocates its launcher, but not a nested CMake command path. Resolve
+# the CUB runner's `cmake` command from PATH so installed tests remain relocatable.
 set(
   _cub_test_install_cccl_dir
   "${CMAKE_CURRENT_BINARY_DIR}/${_cub_test_install_destination}/cccl"
@@ -245,7 +245,7 @@ function(
       NAME ${test_target}
       # gersemi: off
       COMMAND
-        ${_cub_test_cmake_command}
+        cmake
            "-DCCCL_SOURCE_DIR=${_cub_test_install_cccl_dir}"
            "-DTEST=$<TARGET_FILE:${test_target}>"
            "-DARGS=[small-mem]"
@@ -256,6 +256,7 @@ function(
       GPUS 1
       PERCENT ${CCCL_TEST_GPU_PERCENT_SMALL}
       INSTALL_COMPONENT_SET ${_cub_test_install_component}
+      INSTALL_TARGET ${test_target}
     )
     set_tests_properties(
       ${test_target}
@@ -267,7 +268,7 @@ function(
         NAME ${test_target}.large
         # gersemi: off
         COMMAND
-          ${_cub_test_cmake_command}
+          cmake
              "-DCCCL_SOURCE_DIR=${_cub_test_install_cccl_dir}"
              "-DTEST=$<TARGET_FILE:${test_target}>"
              "-DARGS=[large-mem]"
@@ -410,7 +411,7 @@ function(
         NAME ${test_target}
         # gersemi: off
         COMMAND
-          ${_cub_test_cmake_command}
+          cmake
             "-DCCCL_SOURCE_DIR=${_cub_test_install_cccl_dir}"
             "-DTEST=$<TARGET_FILE:${test_target}>"
             -P "${_cub_test_install_cccl_dir}/cub/test/run_test.cmake"
@@ -418,6 +419,7 @@ function(
         GPUS 1
         PERCENT ${_cub_gpu_percent}
         INSTALL_COMPONENT_SET ${_cub_test_install_component}
+        INSTALL_TARGET ${test_target}
       )
       set_tests_properties(
         ${test_target}
@@ -438,16 +440,6 @@ function(
     AND "${CMAKE_CUDA_COMPILER_VERSION}" VERSION_GREATER_EQUAL "22.0.0"
   )
     target_compile_options(${test_target} PRIVATE "-Wno-pass-failed")
-  endif()
-
-  if (NOT is_fail_test)
-    install(
-      TARGETS ${test_target}
-      RUNTIME
-        DESTINATION ${_cub_test_install_destination}
-        COMPONENT ${_cub_test_install_component}
-        EXCLUDE_FROM_ALL
-    )
   endif()
 endfunction()
 
